@@ -1,0 +1,7 @@
+<div class="commit-details-container px-4 py-3 d-flex flex-column h-100">
+    <h2 class="h2 mb-4 custom-color-primary font-weight-normal">Commit History</h2>
+    <div class="flex-fill commit-list-container">
+        <app-commit-unit *ngFor="let commit of commitList; index as i" [commitAuthorName]="commit.commitAuthorName" [commitMessage]="commit.commitMessage" [commitDateTime]="commit.commitDateTime | string2date"></app-commit-unit>
+    </div>
+    
+</div>

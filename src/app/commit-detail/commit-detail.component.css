@@ -1,0 +1,20 @@
+.commit-details-container{
+    border: 1px solid var(--primary-color);
+    border-radius: 6px;
+}
+
+.commit-list-container {
+    white-space: initial;
+    overflow: scroll;
+}
+
+
+/* Remove scrollbar from commit list view */
+.commit-list-container::-webkit-scrollbar {
+    display: none;
+}
+
+.commit-list-container {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}

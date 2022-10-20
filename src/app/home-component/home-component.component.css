@@ -1,0 +1,11 @@
+.commit-view{
+    max-height: 500px;
+}
+
+
+@media (min-width: 768px){
+    .commit-view{
+        min-height: 400px;
+        max-height: none;
+    }
+}

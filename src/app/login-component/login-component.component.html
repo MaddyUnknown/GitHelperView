@@ -1,0 +1,36 @@
+<div class="h-min-100-vh row w-100 m-0 p-0">
+    <div class="content-panel col-12 col-lg-6 px-0 px-md-5 py-5 d-flex justify-content-between flex-column">
+        <header class="px-3 px-md-0">
+            <h1 id="logo" class="font-weight-normal"><span class="font-weight-bold custom-color-primary">Git</span>Helper</h1>
+        </header>
+                <main>
+                    <div class="welcome-banner container d-flex flex-column mt-2 mb-5">
+                        <h3 class="h2 d-inline mb-0 mt-1 pb-0 text-center">Hi, User</h3>
+                        <p class="d-inline-block text-center">Please Enter Your Details</p>
+                    </div>
+                    <form #loginform = "ngForm" class="container mt-0 mb-5">
+                            <div class="form-group px-lg-5">
+                                <label  for="username">Username</label>
+                                <input ngModel #username="ngModel" id="username" type="input" class="form-control" name="username" required>
+                                <small *ngIf="username.touched && !username.valid" class="text-danger">Username is mandatory</small>
+                            </div>
+                            <div class="form-group px-lg-5">
+                                <label for="git-token">Git Access Token</label>
+                                <input ngModel #gitToken="ngModel" id="git-token" type="input" class="form-control" name="git-token" required pattern="^[0-9a-zA-Z_]{40}$">
+                                <small *ngIf="gitToken.touched && gitToken.errors!=null && gitToken.errors.required" class="text-danger">Github Token is mandatory</small>
+                                <small *ngIf="gitToken.touched && gitToken.errors!=null && gitToken.errors.pattern" class="text-danger">Invalid Token provided</small>
+                            </div>
+                            <div class="form-group px-lg-5 mt-5">
+                                <button class="btn btn-block custom-btn-primary" (click)="login(loginform.value)" [disabled]="!loginform.valid">Log In</button>
+                            </div>
+                    </form>
+                </main>
+        <footer class="px-3 px-md-0">
+            <div>User Guide</div>
+        </footer>
+    </div>
+    <aside class="image-banner d-none  d-lg-block col-lg-6 p-0" style="background-image: url('/assets/img/login-banner.jpg');">
+        <div class="image-banner-overlay"></div>
+    </aside>
+</div>
+
