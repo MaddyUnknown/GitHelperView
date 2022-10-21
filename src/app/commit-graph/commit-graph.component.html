@@ -1,0 +1,19 @@
+<div class="graph-pannel p-1 p-md-4">
+    <div class="d-flex justify-content-end mb-2">
+        <select #monthDropDown class="month-year-select selectpicker" (change)="refreshGraph($any($event.target).value)" [(ngModel)]="monthDropDownValue">
+            <option *ngFor="let month of monthList; index as i" [value]="month" [innerHtml]="month"></option>
+        </select>
+    </div>
+    <div>
+        <canvas
+        baseChart
+        [legend]="false"
+        [data]="barChartData"
+        [labels]="barChartLabels"
+        [type]="barChartType">
+        [options]="chartOptions"
+        >
+    </canvas>
+    </div>
+    
+</div>
