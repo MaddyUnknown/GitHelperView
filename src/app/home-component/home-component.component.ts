@@ -2,6 +2,8 @@ import { Component, ElementRef, HostListener, OnInit, ViewChild } from '@angular
 import { ChartData, ChartOptions, ChartType } from 'chart.js';
 import { DEFAULT_REPO_DETAILS, ILanguageDetails, IRepoDetails, RepoService } from '../service/repo.service';
 
+declare var $: any;
+
 @Component({
   selector: 'home-component',
   templateUrl: './home-component.component.html',
@@ -11,6 +13,7 @@ export class HomeComponentComponent implements OnInit {
 
   @ViewChild('repoDetailsView') repoDetailsView:ElementRef; 
   @ViewChild('commitDetailsView') commitDetailsView:ElementRef; 
+  @ViewChild('repoDropDown') repoDropDown:ElementRef; 
 
   selectedRepositoryDetails: string = JSON.stringify(DEFAULT_REPO_DETAILS);
 
@@ -26,6 +29,8 @@ export class HomeComponentComponent implements OnInit {
   chartType : ChartType = 'pie';
   
   chartData?: ChartData<ChartType>;
+
+  backgroundColors: any = ['#1D8F6D', '#385855', '#CFC69B', '#90D7FF', '#896978', '#F45B69'];
 
   chartLabels?: string[];
 
@@ -52,7 +57,14 @@ export class HomeComponentComponent implements OnInit {
       this.repoService.getRepoListAndUserDetails().subscribe((data: {userAvatarUrl: string, repoList: IRepoDetails[] })=>{
         this.repoList = data.repoList;
         this.userAvatarUrl = data.userAvatarUrl;
+        this.refreshDropdown();
       })
+  }
+
+  refreshDropdown(){
+    setTimeout(() => {
+      $(this.repoDropDown.nativeElement).selectpicker('refresh');
+    });
   }
 
   initOnRepoSelection(value: string){
@@ -68,7 +80,8 @@ export class HomeComponentComponent implements OnInit {
         datasets: [{
           label: 'Number of bytes used: ',
           data: labelData,
-          hoverOffset: 4
+          hoverOffset: 4,
+          backgroundColor: this.backgroundColors,
         }]
 
       }

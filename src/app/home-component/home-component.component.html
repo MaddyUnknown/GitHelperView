@@ -1,7 +1,7 @@
 <div class="container-fluid" style="height: 100vh">
     <nav class="d-flex flex-column flex-md-row justify-content-between align-items-center mb-2">
         <h1 id="logo" class="font-weight-normal"><span class="font-weight-bold custom-color-primary">Git</span>Helper</h1>
-        <select class="repository-input selectpicker px-md-5 w-100" name="repository-input" [disabled]="repoList==null || repoList.length==0" [(ngModel)]="selectedRepositoryDetails" (change)="initOnRepoSelection($any($event.target).value)">
+        <select #repoDropDown class="repository-input selectpicker px-md-5 w-100" name="repository-input" [disabled]="repoList==null || repoList.length==0" [(ngModel)]="selectedRepositoryDetails" (change)="initOnRepoSelection($any($event.target).value)">
             <option value='{"owner":"","repoName":""}' disabled selected>Enter a Repository Name</option>
             <option *ngFor="let repo of repoList;" [value]="repo | stringify" [innerHtml]="repo.repoName"></option>
         </select>
@@ -20,12 +20,12 @@
         <div #repoDetailsView class="size-view col-12 col-lg-6 d-flex flex-column pr-lg-1">
             <div class="info-panel d-flex flex-column flex-sm-row flex-fill mb-2">
                 <div class="d-flex flex-column flex-fill mb-2 mb-sm-0">
-                    <div class="repo-name-view flex-fill mb-1 mr-0 mr-sm-1 p-3">
-                        <p class="custom-color-dark-grey d-inline">Repositoy Name:
+                    <div class="repo-name-view d-flex align-items-center flex-fill mb-1 mr-0 mr-sm-1 p-3">
+                        <p class="custom-color-dark-grey">Repositoy Name:
                         <span class="d-block custom-color-primary h4">{{(selectedRepositoryDetails | string2json).repoName}}</span>
                         </p>
                     </div>
-                    <div class="num-contributer-view flex-fill mt-1 mr-0 mr-sm-1 p-3">
+                    <div class="num-contributer-view d-flex align-items-center flex-fill mt-1 mr-0 mr-sm-1 p-3">
                         <p class="custom-color-dark-grey">Number of Contributers:
                             <span class="d-block custom-color-primary h4">{{numOfContributers}}</span>
                         </p>
