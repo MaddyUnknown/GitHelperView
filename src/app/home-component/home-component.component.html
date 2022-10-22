@@ -1,7 +1,7 @@
-<div class="d-flex flex-column px-2" style="height: 100vh">
-    <nav class="d-flex flex-column flex-md-row justify-content-between align-items-center">
+<div class="container-fluid" style="height: 100vh">
+    <nav class="d-flex flex-column flex-md-row justify-content-between align-items-center mb-2">
         <h1 id="logo" class="font-weight-normal"><span class="font-weight-bold custom-color-primary">Git</span>Helper</h1>
-        <select class="repository-input selectpicker w-100" name="repository-input" [disabled]="repoList==null || repoList.length==0" [(ngModel)]="selectedRepositoryDetails" (change)="initOnRepoSelection($any($event.target).value)">
+        <select class="repository-input selectpicker px-md-5 w-100" name="repository-input" [disabled]="repoList==null || repoList.length==0" [(ngModel)]="selectedRepositoryDetails" (change)="initOnRepoSelection($any($event.target).value)">
             <option value='{"owner":"","repoName":""}' disabled selected>Enter a Repository Name</option>
             <option *ngFor="let repo of repoList;" [value]="repo | stringify" [innerHtml]="repo.repoName"></option>
         </select>
@@ -16,28 +16,27 @@
               </div>
         </span>
     </nav>
-    <main *ngIf="(selectedRepositoryDetails |string2json).repoName !== ''" class="row" style="height: 94%;">
-        <commit-detail class="commit-view col-12 col-md-6 h-100" [repositoryDetails]="selectedRepositoryDetails | string2json"></commit-detail>
-        <div class="size-view col-12 col-md-6 h-100 d-flex flex-column">
-            <div class="info-panel row flex-fill">
-                <div class="col-12 col-md-6 pr-md-0">
-                    <div class="repo-name-view h-50">
-                        <p>Repositoy Name:
-                        <span class="d-block">{{(selectedRepositoryDetails | string2json).repoName}}</span>
+    <main *ngIf="(selectedRepositoryDetails |string2json).repoName !== ''" class="row" style="height: 93%;"> <!--Check after this-->
+        <div class="size-view col-12 col-lg-6 d-flex flex-column pr-lg-1">
+            <div class="info-panel d-flex flex-column flex-sm-row flex-fill mb-2">
+                <div class="d-flex flex-column flex-fill mb-2 mb-sm-0">
+                    <div class="repo-name-view flex-fill mb-1 mr-0 mr-sm-1 p-3">
+                        <p class="custom-color-dark-grey d-inline">Repositoy Name:
+                        <span class="d-block custom-color-primary h4">{{(selectedRepositoryDetails | string2json).repoName}}</span>
                         </p>
                     </div>
-                    <div class="num-contributer-view h-50">
-                        <p>Number of Contributers:
-                            <span class="d-block">{{numOfContributers}}</span>
+                    <div class="num-contributer-view flex-fill mt-1 mr-0 mr-sm-1 p-3">
+                        <p class="custom-color-dark-grey">Number of Contributers:
+                            <span class="d-block custom-color-primary h4">{{numOfContributers}}</span>
                         </p>
                     </div>
                 </div>
-                <div class="col-12 col-md-6">
-                    <div class="laungage-used-view h-100">
-                        <div>
+                <div class="language-view-container">
+                    <div class="laungage-used-view h-100 ml-0 ml-sm-1 p-3">
+                        <div class="custom-color-dark-grey">
                             Langauages Used:
                             <div class="d-block">
-                                <canvas style="max-height: 300px;" 
+                                <canvas style="max-height: 250px;" 
                                         baseChart
                                         [legend]="true"
                                         [data]="chartData"
@@ -51,9 +50,14 @@
                     
                 </div>
             </div>
-            <div>
+            <div class="commit-graph-view flex-fill mb-2 mb-lg-0">
                 <commit-graph [repositoryDetails]="selectedRepositoryDetails | string2json"></commit-graph>
             </div>
         </div> 
+        <div class="col-12 col-lg-6 h-100 pl-lg-1 pb-2 pb-lg-0">
+            <div class="commit-view h-100 px-lg-3">
+                <commit-detail class="" [repositoryDetails]="selectedRepositoryDetails | string2json"></commit-detail>
+            </div>
+        </div>
     </main>
 </div>

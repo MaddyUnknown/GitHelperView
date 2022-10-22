@@ -1,5 +1,5 @@
 .commit-view{
-    max-height: 500px;
+    max-height: 800px;
 }
 
 .dropdown-toggle{
@@ -14,13 +14,25 @@
 
 .repo-name-view, 
 .num-contributer-view, 
-.laungage-used-view {
+.laungage-used-view,
+.commit-graph-view,
+.commit-view {
     border: 1px solid var(--primary-color);
     border-radius: 6px;
 }
 
+.language-view-container {
+    width: 100%;
+}
 
-@media (min-width: 768px){
+@media (min-width: 576px) { 
+    .language-view-container {
+        width: 50%;
+    }
+ }
+
+
+@media (min-width: 992px){
     .commit-view{
         min-height: 400px;
         max-height: none;

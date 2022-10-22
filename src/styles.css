@@ -2,6 +2,7 @@
 .light-theme {
     --primary-color : #1D8F6D;
     --secondary-color: #385855;
+    --dark-gray: #6A6A6A;
     --primart-text-color: #000;
     --secondary-text-color: #fff;
 }
@@ -39,6 +40,10 @@ body,html {
     color: var(--primary-color);
 }
 
+.custom-color-dark-grey{
+    color: var(--dark-gray);
+}
+
 
 /* Global Form Element Style */
 .custom-btn-primary{
@@ -69,6 +74,16 @@ body,html {
     background-color: var(--primary-color);
     color: var(--secondary-text-color);
 }
+
+@media (min-width: 576px) { 
+    .w-sm-50{
+        width: 50%;
+    }
+    
+    .w-sm-75{
+        width: 75%;
+    }
+ }
 
 
 /* @media (min-width: 768px) {

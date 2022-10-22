@@ -1,8 +1,3 @@
-.commit-details-container{
-    border: 1px solid var(--primary-color);
-    border-radius: 6px;
-}
-
 .commit-list-container {
     white-space: initial;
     overflow: scroll;
