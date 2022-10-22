@@ -9,9 +9,11 @@ import { CommitUnitComponent } from './commit-unit/commit-unit.component';
 import { CommitDetailComponent } from './commit-detail/commit-detail.component';
 import { LoginComponentComponent } from './login-component/login-component.component';
 import { HomeComponentComponent } from './home-component/home-component.component';
+import {RepoService} from './service/repo.service';
 
 import {String2Date} from './custom-pipes/date.transform.pipe';
 import { CommitGraphComponent } from './commit-graph/commit-graph.component'; 
+import { Json2String, String2Json } from './custom-pipes/json.stringify.pipe';
 
 const appRoutes: Routes = [
   {path: 'login', component: LoginComponentComponent},
@@ -27,6 +29,8 @@ const appRoutes: Routes = [
     LoginComponentComponent,
     HomeComponentComponent,
     String2Date,
+    Json2String,
+    String2Json,
     CommitGraphComponent
   ],
   imports: [
@@ -35,7 +39,7 @@ const appRoutes: Routes = [
     NgChartsModule,
     RouterModule.forRoot(appRoutes)
   ],
-  providers: [],
+  providers: [RepoService],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

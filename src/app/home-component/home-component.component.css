@@ -2,6 +2,23 @@
     max-height: 500px;
 }
 
+.dropdown-toggle{
+    border: none;
+}
+
+.avatarPic {
+    width: 40px;
+    border: 1px solid var(--primary-color);;
+    border-radius: 25px;
+}
+
+.repo-name-view, 
+.num-contributer-view, 
+.laungage-used-view {
+    border: 1px solid var(--primary-color);
+    border-radius: 6px;
+}
+
 
 @media (min-width: 768px){
     .commit-view{

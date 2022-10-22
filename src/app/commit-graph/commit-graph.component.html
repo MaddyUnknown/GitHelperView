@@ -1,7 +1,7 @@
 <div class="graph-pannel p-1 p-md-4">
     <div class="d-flex justify-content-end mb-2">
         <select #monthDropDown class="month-year-select selectpicker" (change)="refreshGraph($any($event.target).value)" [(ngModel)]="monthDropDownValue">
-            <option *ngFor="let month of monthList; index as i" [value]="month" [innerHtml]="month"></option>
+            <option *ngFor="let period of monthYearList; index as i" [value]="period | stringify" [innerHtml]="getStringFromPeriod(period.month, period.year)"></option>
         </select>
     </div>
     <div>

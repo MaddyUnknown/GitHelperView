@@ -1,5 +1,5 @@
 import { Component, Input, OnInit, SimpleChanges } from '@angular/core';
-import {ICommitDetails} from './commit-detail.interface';
+import { DEFAULT_REPO_DETAILS, IRepoDetails, RepoService, ICommitDetails } from '../service/repo.service';
 
 @Component({
   selector: 'commit-detail',
@@ -9,11 +9,11 @@ import {ICommitDetails} from './commit-detail.interface';
 export class CommitDetailComponent implements OnInit {
 
   @Input()
-  repositoryName: string = '';
+  repositoryDetails: IRepoDetails = DEFAULT_REPO_DETAILS;
 
   commitList? : ICommitDetails[];
 
-  constructor() {
+  constructor(private repoService: RepoService) {
   
   }
 
@@ -21,34 +21,16 @@ export class CommitDetailComponent implements OnInit {
   }
     
   ngOnChanges(changes: SimpleChanges){
-    if(changes.repositoryName != null){
+    if(changes.repositoryDetails != null && this.repositoryDetails.owner!=''){
       this.initAfterRepoSelection();
     }
   }
 
   initAfterRepoSelection() {
-    // Fetch commitList from api based on repositoryName
-    console.log("called");
-    this.commitList = [{commitAuthorName:'MaddyUnknown', commitMessage:"AVST-2256: Creating new feature super important feature but the feauter has bugs so kudos", commitDateTime:'2023-09-27T05:57:47Z'},
-                       {commitAuthorName:'MaddyUnknown', commitMessage:"Initial Commit", commitDateTime:'2022-09-27T05:57:47Z'},
-                       {commitAuthorName:'MaddyUnknown', commitMessage:"Initial Commit", commitDateTime:'2022-09-27T05:57:47Z'},
-                       {commitAuthorName:'MaddyUnknown', commitMessage:"Initial Commit", commitDateTime:'2022-09-27T05:57:47Z'},
-                       {commitAuthorName:'MaddyUnknown', commitMessage:"Initial Commit", commitDateTime:'2022-09-27T05:57:47Z'},
-                       {commitAuthorName:'MaddyUnknown', commitMessage:"Initial Commit", commitDateTime:'2022-09-27T05:57:47Z'},
-                       {commitAuthorName:'MaddyUnknown', commitMessage:"Initial Commit", commitDateTime:'2022-09-27T05:57:47Z'},
-                       {commitAuthorName:'MaddyUnknown', commitMessage:"Initial Commit", commitDateTime:'2022-09-27T05:57:47Z'},
-                       {commitAuthorName:'MaddyUnknown', commitMessage:"Initial Commit", commitDateTime:'2022-09-27T05:57:47Z'},
-                       {commitAuthorName:'MaddyUnknown', commitMessage:"Initial Commit", commitDateTime:'2022-09-27T05:57:47Z'},
-                       {commitAuthorName:'MaddyUnknown', commitMessage:"Initial Commit", commitDateTime:'2022-09-27T05:57:47Z'},
-                       {commitAuthorName:'MaddyUnknown', commitMessage:"Initial Commit", commitDateTime:'2022-09-27T05:57:47Z'},
-                       {commitAuthorName:'MaddyUnknown', commitMessage:"Initial Commit", commitDateTime:'2022-09-27T05:57:47Z'},
-                       {commitAuthorName:'MaddyUnknown', commitMessage:"Initial Commit", commitDateTime:'2022-09-27T05:57:47Z'},
-                       {commitAuthorName:'MaddyUnknown', commitMessage:"AVST-2256: Creating new feature super important feature but the feauter has bugs so kudos", commitDateTime:'2022-09-27T05:57:47Z'},
-                       {commitAuthorName:'MaddyUnknown', commitMessage:"Initial Commit", commitDateTime:'2022-09-27T05:57:47Z'},
-                       {commitAuthorName:'MaddyUnknown', commitMessage:"Initial Commit", commitDateTime:'2022-09-27T05:57:47Z'},
-                       {commitAuthorName:'MaddyUnknown', commitMessage:"Initial Commit", commitDateTime:'2022-09-27T05:57:47Z'},
-                       {commitAuthorName:'MaddyUnknown', commitMessage:"Initial Commit", commitDateTime:'2022-09-27T05:57:47Z'},
-                       {commitAuthorName:'MaddyUnknown', commitMessage:"Initial Commit", commitDateTime:'2022-09-27T05:57:47Z'}]
+    // Fetch commitList from api based on repositoryDetails
+    this.repoService.getRepoCommitHistory(this.repositoryDetails.owner, this.repositoryDetails.repoName).subscribe((data: ICommitDetails[])=>{
+      this.commitList = data;
+    })
   }
     
 
