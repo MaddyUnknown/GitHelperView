@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, ElementRef, HostListener, OnInit, ViewChild } from '@angular/core';
 import { ChartData, ChartOptions, ChartType } from 'chart.js';
 import { DEFAULT_REPO_DETAILS, ILanguageDetails, IRepoDetails, RepoService } from '../service/repo.service';
 
@@ -8,6 +8,9 @@ import { DEFAULT_REPO_DETAILS, ILanguageDetails, IRepoDetails, RepoService } fro
   styleUrls: ['./home-component.component.css']
 })
 export class HomeComponentComponent implements OnInit {
+
+  @ViewChild('repoDetailsView') repoDetailsView:ElementRef; 
+  @ViewChild('commitDetailsView') commitDetailsView:ElementRef; 
 
   selectedRepositoryDetails: string = JSON.stringify(DEFAULT_REPO_DETAILS);
 
@@ -68,9 +71,23 @@ export class HomeComponentComponent implements OnInit {
           hoverOffset: 4
         }]
 
-    }
-
-  });
-
+      }
+    });
   }
+
+  getWindowWidth(){
+    return window.innerWidth;
+  }
+
+  /*
+    Needed to refresh the view everytime window size changes
+    Why needed?: Everytime the screens aspect ratio changed drastically height of 'commitDetailsView' and 'repoDetailsView' were not the same (for devices greater than xl)
+    Fix: A programatic approch is taken where the height of repoDetailsView is copied to height of commitDetailsView for xl devices.
+    [style.height.px]="(getWindowWidth() > 992)? repoDetailsView.offsetHeight:  'auto'" is used in template and to trigger this hostlistener is required.
+  */
+  @HostListener('window:resize', ['$event'])
+    onResize(event: any) {
+  }
+
+
 }

@@ -17,7 +17,7 @@
         </span>
     </nav>
     <main *ngIf="(selectedRepositoryDetails |string2json).repoName !== ''" class="row" style="height: 93%;"> <!--Check after this-->
-        <div class="size-view col-12 col-lg-6 d-flex flex-column pr-lg-1">
+        <div #repoDetailsView class="size-view col-12 col-lg-6 d-flex flex-column pr-lg-1">
             <div class="info-panel d-flex flex-column flex-sm-row flex-fill mb-2">
                 <div class="d-flex flex-column flex-fill mb-2 mb-sm-0">
                     <div class="repo-name-view flex-fill mb-1 mr-0 mr-sm-1 p-3">
@@ -54,7 +54,7 @@
                 <commit-graph [repositoryDetails]="selectedRepositoryDetails | string2json"></commit-graph>
             </div>
         </div> 
-        <div class="col-12 col-lg-6 h-100 pl-lg-1 pb-2 pb-lg-0">
+        <div #commitDetailsView class="col-12 col-lg-6 pl-lg-1 pb-2 pb-lg-0" [style.height.px]="(getWindowWidth() > 992)? repoDetailsView.offsetHeight:  'auto'">
             <div class="commit-view h-100 px-lg-3">
                 <commit-detail class="" [repositoryDetails]="selectedRepositoryDetails | string2json"></commit-detail>
             </div>
