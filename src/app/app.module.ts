@@ -11,6 +11,8 @@ import { LoginComponentComponent } from './login-component/login-component.compo
 import { HomeComponentComponent } from './home-component/home-component.component';
 import {RepoService} from './service/repo.service';
 
+import { InfiniteScrollModule } from 'ngx-infinite-scroll';
+
 import {String2Date} from './custom-pipes/date.transform.pipe';
 import { CommitGraphComponent } from './commit-graph/commit-graph.component'; 
 import { Json2String, String2Json } from './custom-pipes/json.stringify.pipe';
@@ -36,6 +38,7 @@ const appRoutes: Routes = [
   imports: [
     BrowserModule,
     FormsModule,
+    InfiniteScrollModule,
     NgChartsModule,
     RouterModule.forRoot(appRoutes)
   ],

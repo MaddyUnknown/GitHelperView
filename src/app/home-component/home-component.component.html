@@ -54,7 +54,7 @@
                 <commit-graph [repositoryDetails]="selectedRepositoryDetails | string2json"></commit-graph>
             </div>
         </div> 
-        <div #commitDetailsView class="col-12 col-lg-6 pl-lg-1 pb-2 pb-lg-0" [style.height.px]="(getWindowWidth() > 992)? repoDetailsView.offsetHeight:  'auto'">
+        <div #commitDetailsView class="col-12 col-lg-6 pl-lg-1 pb-2 pb-lg-0" [style.height.px]="repoDetailsView.offsetHeight">
             <div class="commit-view h-100 px-lg-3">
                 <commit-detail class="" [repositoryDetails]="selectedRepositoryDetails | string2json"></commit-detail>
             </div>

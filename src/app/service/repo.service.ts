@@ -1,5 +1,5 @@
 import { Injectable } from "@angular/core";
-import { Observable, of } from "rxjs";
+import { delay, Observable, of } from "rxjs";
 
 
 export interface IRepoDetails{
@@ -46,26 +46,17 @@ export class RepoService{
 
     //Get commit history for a specific repository (for user cookie)
     getRepoCommitHistory(owner: string, repoName: string, pageNum: number = 1, pageLength: number = Infinity): Observable<ICommitDetails[]>{
-        const commitList: ICommitDetails[] = [{commitAuthorName:'MaddyUnknown', commitMessage:"AVST-2256: Creating new feature super important feature but the feauter has bugs so kudos "+repoName, commitDateTime:'2023-09-27T05:57:47Z'},
-                                            {commitAuthorName:'MaddyUnknown', commitMessage:"Initial Commit", commitDateTime:'2022-09-27T05:57:47Z'},
-                                            {commitAuthorName:'MaddyUnknown', commitMessage:"Initial Commit", commitDateTime:'2022-09-27T05:57:47Z'},
-                                            {commitAuthorName:'MaddyUnknown', commitMessage:"Initial Commit", commitDateTime:'2022-09-27T05:57:47Z'},
-                                            {commitAuthorName:'MaddyUnknown', commitMessage:"Initial Commit", commitDateTime:'2022-09-27T05:57:47Z'},
-                                            {commitAuthorName:'MaddyUnknown', commitMessage:"Initial Commit", commitDateTime:'2022-09-27T05:57:47Z'},
-                                            {commitAuthorName:'MaddyUnknown', commitMessage:"Initial Commit", commitDateTime:'2022-09-27T05:57:47Z'},
-                                            {commitAuthorName:'MaddyUnknown', commitMessage:"Initial Commit", commitDateTime:'2022-09-27T05:57:47Z'},
-                                            {commitAuthorName:'MaddyUnknown', commitMessage:"Initial Commit", commitDateTime:'2022-09-27T05:57:47Z'},
-                                            {commitAuthorName:'MaddyUnknown', commitMessage:"Initial Commit", commitDateTime:'2022-09-27T05:57:47Z'},
-                                            {commitAuthorName:'MaddyUnknown', commitMessage:"Initial Commit", commitDateTime:'2022-09-27T05:57:47Z'},
-                                            {commitAuthorName:'MaddyUnknown', commitMessage:"Initial Commit", commitDateTime:'2022-09-27T05:57:47Z'},
-                                            {commitAuthorName:'MaddyUnknown', commitMessage:"Initial Commit", commitDateTime:'2022-09-27T05:57:47Z'},
-                                            {commitAuthorName:'MaddyUnknown', commitMessage:"Initial Commit", commitDateTime:'2022-09-27T05:57:47Z'},
-                                            {commitAuthorName:'MaddyUnknown', commitMessage:"AVST-2256: Creating new feature super important feature but the feauter has bugs so kudos", commitDateTime:'2022-09-27T05:57:47Z'},
-                                            {commitAuthorName:'MaddyUnknown', commitMessage:"Initial Commit", commitDateTime:'2022-09-27T05:57:47Z'},
-                                            {commitAuthorName:'MaddyUnknown', commitMessage:"Initial Commit", commitDateTime:'2022-09-27T05:57:47Z'},
-                                            {commitAuthorName:'MaddyUnknown', commitMessage:"Initial Commit", commitDateTime:'2022-09-27T05:57:47Z'},
-                                            {commitAuthorName:'MaddyUnknown', commitMessage:"Initial Commit", commitDateTime:'2022-09-27T05:57:47Z'},
-                                            {commitAuthorName:'MaddyUnknown', commitMessage:"Initial Commit", commitDateTime:'2022-09-27T05:57:47Z'}];
+        // const commitLists: ICommitDetails[] = [{commitAuthorName:'MaddyUnknown', commitMessage:"AVST-2256: Creating new feature super important feature but the feauter has bugs so kudos "+repoName, commitDateTime:'2023-09-27T05:57:47Z'},
+        //                                     {commitAuthorName:'MaddyUnknown', commitMessage:"Initial Commit", commitDateTime:'2022-09-27T05:57:47Z'},
+        //                                     {commitAuthorName:'MaddyUnknown', commitMessage:"Initial Commit", commitDateTime:'2022-09-27T05:57:47Z'},
+        //                                     {commitAuthorName:'MaddyUnknown', commitMessage:"Initial Commit", commitDateTime:'2022-09-27T05:57:47Z'},
+        //                                     {commitAuthorName:'MaddyUnknown', commitMessage:"Initial Commit", commitDateTime:'2022-09-27T05:57:47Z'},
+        //                                     {commitAuthorName:'MaddyUnknown', commitMessage:"Initial Commit", commitDateTime:'2022-09-27T05:57:47Z'},
+        //                                     {commitAuthorName:'MaddyUnknown', commitMessage:"Initial Commit", commitDateTime:'2022-09-27T05:57:47Z'},
+        //                                     {commitAuthorName:'MaddyUnknown', commitMessage:"Initial Commit", commitDateTime:'2022-09-27T05:57:47Z'},
+        //                                     {commitAuthorName:'MaddyUnknown', commitMessage:"Initial Commit", commitDateTime:'2022-09-27T05:57:47Z'},
+        //                                     {commitAuthorName:'MaddyUnknown', commitMessage:"Initial Commit", commitDateTime:'2022-09-27T05:57:47Z'}];
+        let commitList: ICommitDetails[] = Array.from({length: pageLength}, (_, i)=>{return {commitAuthorName:'MaddyUnknown '+(pageNum).toString(), commitMessage:"AVST-2256: Creating new feature super important feature but the feauter has bugs so kudos "+repoName, commitDateTime:'2023-09-27T05:57:47Z'};});
         return of(commitList);
     }
 
