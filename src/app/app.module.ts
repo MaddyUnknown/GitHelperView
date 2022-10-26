@@ -1,11 +1,12 @@
-import { NgModule } from '@angular/core';
+import { NgModule, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { FormsModule } from '@angular/forms';
 import { NgChartsModule } from 'ng2-charts';
 import {Routes, RouterModule} from '@angular/router';
 import { HttpClientModule } from '@angular/common/http';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';  
-import { ToastrModule } from 'ngx-toastr';  
+import { ToastrModule } from 'ngx-toastr';
+import { NgxSpinnerModule } from "ngx-spinner";
 
 import { AppComponent } from './app.component';
 import { CommitUnitComponent } from './commit-unit/commit-unit.component';
@@ -48,11 +49,13 @@ const appRoutes: Routes = [
     InfiniteScrollModule,
     NgChartsModule,
     BrowserAnimationsModule,
+    NgxSpinnerModule,
     ToastrModule.forRoot({
       positionClass :'toast-bottom-right'
     }),
     RouterModule.forRoot(appRoutes)
   ],
+  schemas: [CUSTOM_ELEMENTS_SCHEMA],
   providers: [RepoService, AuthenticationService, AuthGuardService],
   bootstrap: [AppComponent]
 })

@@ -4,7 +4,15 @@
             <option *ngFor="let period of monthYearList; index as i" [value]="period | stringify" [innerHtml]="getStringFromPeriod(period.month, period.year)"></option>
         </select>
     </div>
-    <div>
+    <div class="position-relative">
+        <div class="position-absolute h-100 w-100">
+            <ngx-spinner name="graph-spinner" bdOpacity = 0.9
+                                    bdColor= ""
+                                    size = "default"
+                                    color = "#1D8F6D"
+                                    type = "ball-pulse-sync"
+                                    [fullScreen] = "false"></ngx-spinner>
+        </div>
         <canvas
         baseChart
         [legend]="false"

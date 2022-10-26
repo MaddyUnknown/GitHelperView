@@ -1,5 +1,7 @@
 import { Component, Input, OnInit, SimpleChanges } from '@angular/core';
 import { DEFAULT_REPO_DETAILS, IRepoDetails, RepoService, ICommitDetails } from '../service/repo.service';
+import { NgxSpinnerService } from "ngx-spinner";
+
 
 @Component({
   selector: 'commit-detail',
@@ -20,7 +22,7 @@ export class CommitDetailComponent implements OnInit {
 
   hasMoreData : boolean = true;
 
-  constructor(private repoService: RepoService) {
+  constructor(private repoService: RepoService, private spinner: NgxSpinnerService) {
   
   }
 
@@ -35,7 +37,7 @@ export class CommitDetailComponent implements OnInit {
 
   initAfterRepoSelection() {
     // Fetch commitList from api based on repositoryDetails
-    console.log("here");
+    // console.log("here");
     this.hasMoreData = true;
     this.currentPageNumber = 0;
     this.commitList = [];
@@ -43,21 +45,28 @@ export class CommitDetailComponent implements OnInit {
   }
 
   onScrollDown(event: any){
-    console.log("scrolled down");
+    // console.log("scrolled down");
     this.getNextPage()
   }
 
   getNextPage() {
     this.currentPageNumber = this.currentPageNumber+1;
-    console.log("scrolled triggered");
-    console.log(this.hasMoreData, this.currentPageNumber);
+    // console.log("scrolled triggered");
+    // console.log(this.hasMoreData, this.currentPageNumber);
     if(this.hasMoreData){
-      this.repoService.getRepoCommitHistory(this.repositoryDetails.owner, this.repositoryDetails.repoName, this.currentPageNumber, this.entryPerPage).subscribe((data: ICommitDetails[])=>{
+      this.spinner.show("commit-spinner");
+      this.repoService.getRepoCommitHistory(this.repositoryDetails.owner, this.repositoryDetails.repoName, this.currentPageNumber, this.entryPerPage).subscribe({
+        next: (data: ICommitDetails[])=>{
         this.commitList = this.commitList?.concat(data);
         if(data.length < this.entryPerPage){
           this.hasMoreData = false;
         }
-      })
+        },
+        complete: () =>{
+          this.spinner.hide("commit-spinner");
+        }
+    })
+      
     }
   }
     
