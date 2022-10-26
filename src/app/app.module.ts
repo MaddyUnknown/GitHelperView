@@ -3,6 +3,9 @@ import { BrowserModule } from '@angular/platform-browser';
 import { FormsModule } from '@angular/forms';
 import { NgChartsModule } from 'ng2-charts';
 import {Routes, RouterModule} from '@angular/router';
+import { HttpClientModule } from '@angular/common/http';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';  
+import { ToastrModule } from 'ngx-toastr';  
 
 import { AppComponent } from './app.component';
 import { CommitUnitComponent } from './commit-unit/commit-unit.component';
@@ -16,11 +19,14 @@ import { InfiniteScrollModule } from 'ngx-infinite-scroll';
 import {String2Date} from './custom-pipes/date.transform.pipe';
 import { CommitGraphComponent } from './commit-graph/commit-graph.component'; 
 import { Json2String, String2Json } from './custom-pipes/json.stringify.pipe';
+import { AuthenticationService } from './service/auth.service';
+import { AuthGuardService } from './service/auth.guard.service';
 
 const appRoutes: Routes = [
   {path: 'login', component: LoginComponentComponent},
-  {path: 'home', component: HomeComponentComponent},
-  {path: '', redirectTo: 'login', pathMatch: 'full'}
+  {path: 'home', component: HomeComponentComponent, canActivate: [AuthGuardService]},
+  {path: '', redirectTo: 'login', pathMatch: 'full'},
+  {path: '**', redirectTo: 'home', pathMatch: 'full'}
 ]
 
 @NgModule({
@@ -38,11 +44,16 @@ const appRoutes: Routes = [
   imports: [
     BrowserModule,
     FormsModule,
+    HttpClientModule,
     InfiniteScrollModule,
     NgChartsModule,
+    BrowserAnimationsModule,
+    ToastrModule.forRoot({
+      positionClass :'toast-bottom-right'
+    }),
     RouterModule.forRoot(appRoutes)
   ],
-  providers: [RepoService],
+  providers: [RepoService, AuthenticationService, AuthGuardService],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

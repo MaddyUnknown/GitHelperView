@@ -15,8 +15,8 @@
                                 <small *ngIf="username.touched && !username.valid" class="text-danger">Username is mandatory</small>
                             </div>
                             <div class="form-group px-lg-5">
-                                <label for="git-token">Git Access Token</label>
-                                <input ngModel #gitToken="ngModel" id="git-token" type="input" class="form-control" name="git-token" required pattern="^[0-9a-zA-Z_]{40}$">
+                                <label for="giToken">Git Access Token</label>
+                                <input ngModel #gitToken="ngModel" id="gitToken" type="input" class="form-control" name="gitToken" required pattern="^[0-9a-zA-Z_]{40}$">
                                 <small *ngIf="gitToken.touched && gitToken.errors!=null && gitToken.errors.required" class="text-danger">Github Token is mandatory</small>
                                 <small *ngIf="gitToken.touched && gitToken.errors!=null && gitToken.errors.pattern" class="text-danger">Invalid Token provided</small>
                             </div>

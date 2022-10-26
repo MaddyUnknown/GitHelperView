@@ -1,3 +1,4 @@
+import { HttpClient, HttpParams } from "@angular/common/http";
 import { Injectable } from "@angular/core";
 import { delay, Observable, of } from "rxjs";
 
@@ -27,7 +28,7 @@ export interface IMonthYear{
 
 @Injectable()
 export class RepoService{
-    constructor(){ }
+    constructor(private http: HttpClient){ }
 
     //Get list of repo (for user cookie)
     getRepoListAndUserDetails(): Observable<{userAvatarUrl: string, repoList: IRepoDetails[] }> {
@@ -40,7 +41,8 @@ export class RepoService{
                                                                                             {repoName: 'Counter Strik: GO', owner: 'StingerM'}]
                                                                     };
         
-        return of(returnObj);
+        
+        return this.http.get<{userAvatarUrl: string, repoList: IRepoDetails[] }>('/api/DashBoard/GetUserDetails');
 
     }
 
@@ -86,6 +88,15 @@ export class RepoService{
                                                                                                                                 {language: "CSS", bytesOfCode: 2204},
                                                                                                                                 {language: "JavaScript", bytesOfCode: 302}
                                                                                                                                 ]};
+        return of(result);
+    }
+
+    getRepoLanguages(owner: string, repoName: string): Observable<ILanguageDetails[]>{
+        const result : ILanguageDetails[] = [{language: "C#", bytesOfCode: 35978},
+                                                                                                                                {language: "ASP.NET", bytesOfCode: 20532},
+                                                                                                                                {language: "CSS", bytesOfCode: 2204},
+                                                                                                                                {language: "JavaScript", bytesOfCode: 302}
+                                                                                                                                ];
         return of(result);
     }
 
