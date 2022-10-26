@@ -55,11 +55,16 @@ export class HomeComponentComponent implements OnInit {
   constructor(private repoService : RepoService, private authService: AuthenticationService, private router : Router, private toastr: ToastrService) { }
 
   ngOnInit(): void {
-      this.repoService.getRepoListAndUserDetails().subscribe((data: {userAvatarUrl: string, repoList: IRepoDetails[] })=>{
-        this.repoList = data.repoList;
-        this.userAvatarUrl = data.userAvatarUrl;
-        this.refreshDropdown();
-      })
+      this.repoService.getRepoListAndUserDetails().subscribe({
+        next:(data: {userAvatarUrl: string, repoList: IRepoDetails[] })=>{
+          this.repoList = data.repoList;
+          this.userAvatarUrl = data.userAvatarUrl;
+          this.refreshDropdown();
+        },
+        error: (error)=>{
+          this.toastr.error("An Error Occured While Fetching Repository List", "Error");
+        }
+    })
   }
 
   refreshDropdown(){
@@ -70,20 +75,25 @@ export class HomeComponentComponent implements OnInit {
 
   initOnRepoSelection(value: string){
     let repoObj : IRepoDetails = JSON.parse(value);
-    this.repoService.getRepoLanguages(repoObj.owner, repoObj.repoName).subscribe((data: ILanguageDetails[])=> {
-      this.languagesList = data;
+    this.repoService.getRepoLanguages(repoObj.owner, repoObj.repoName).subscribe({
+      next: (data: ILanguageDetails[])=> {
+        this.languagesList = data;
 
-      let label = this.languagesList?.map((x)=> x.language);
-      let labelData: any = this.languagesList?.map((x)=> x.bytesOfCode);
-      this.chartData = {
-        labels: label,
-        datasets: [{
-          label: 'Number of bytes used: ',
-          data: labelData,
-          hoverOffset: 4,
-          backgroundColor: this.backgroundColors,
-        }]
+        let label = this.languagesList?.map((x)=> x.language);
+        let labelData: any = this.languagesList?.map((x)=> x.bytesOfCode);
+        this.chartData = {
+          labels: label,
+          datasets: [{
+            label: 'Number of bytes used: ',
+            data: labelData,
+            hoverOffset: 4,
+            backgroundColor: this.backgroundColors,
+          }]
 
+        }
+      },
+      error: (error)=>{
+        this.toastr.error("An Error Occured While Fetching Repository Languages", "Error");
       }
     });
   }
@@ -99,7 +109,7 @@ export class HomeComponentComponent implements OnInit {
         }
       },
       error: (error)=>{
-        this.toastr.error("Error Occured", "Error");
+        //this.toastr.error("Error Occured", "Error");
       }
     })
     this.router.navigateByUrl('/login');

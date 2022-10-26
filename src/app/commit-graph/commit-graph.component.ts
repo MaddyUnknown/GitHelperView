@@ -2,6 +2,7 @@ import { Component, ElementRef, Input, OnInit, ViewChild, SimpleChanges } from '
 import { ChartOptions, ChartData, ChartType  } from 'chart.js';
 import { DEFAULT_REPO_DETAILS, IRepoDetails, RepoService } from '../service/repo.service';
 import { NgxSpinnerService } from "ngx-spinner";
+import { ToastrService } from 'ngx-toastr';  
 
 declare var $: any;
 
@@ -52,7 +53,7 @@ export class CommitGraphComponent implements OnInit {
     }
   };
 
-  constructor(private repoService: RepoService, private spinner: NgxSpinnerService) { }
+  constructor(private repoService: RepoService, private spinner: NgxSpinnerService, private toastr: ToastrService) { }
 
   ngOnInit(): void {
     //this.initAfterRepoSelection();
@@ -68,15 +69,20 @@ export class CommitGraphComponent implements OnInit {
   initAfterRepoSelection(){
     //Read this.repositoryDetails and call api to get month list
 
-    this.repoService.getMonthYearListForRepo(this.repositoryDetails.owner, this.repositoryDetails.repoName).subscribe((data: {month: string, year: string}[])=>{
-      this.monthYearList = data;
-      this.refreshDropdown();
-      if(this.monthYearList.length !== 0){
-        this.monthDropDownValue = JSON.stringify(this.monthYearList[0]);
+    this.repoService.getMonthYearListForRepo(this.repositoryDetails.owner, this.repositoryDetails.repoName).subscribe({
+      next: (data: {month: string, year: string}[])=>{
+        this.monthYearList = data;
         this.refreshDropdown();
-        this.refreshGraph(this.monthDropDownValue);
+        if(this.monthYearList.length !== 0){
+          this.monthDropDownValue = JSON.stringify(this.monthYearList[0]);
+          this.refreshDropdown();
+          this.refreshGraph(this.monthDropDownValue);
+        }
+      },
+      error: (error)=>{
+        this.toastr.error("An error occured while fetching Month List", "Error");
       }
-    })
+  })
   }
 
   refreshDropdown(){
@@ -111,6 +117,9 @@ export class CommitGraphComponent implements OnInit {
             }
           ]
         };
+      },
+      error:(error)=>{
+        this.toastr.error("An Error Occured While fetching Graph Data", "Error");
       },
       complete: ()=>{
         this.spinner.hide("graph-spinner");

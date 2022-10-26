@@ -1,6 +1,7 @@
-import { Component, Input, OnInit, SimpleChanges } from '@angular/core';
+import { Component, Input, OnInit, SimpleChanges, ɵɵsetComponentScope } from '@angular/core';
 import { DEFAULT_REPO_DETAILS, IRepoDetails, RepoService, ICommitDetails } from '../service/repo.service';
 import { NgxSpinnerService } from "ngx-spinner";
+import { ToastrService } from 'ngx-toastr';  
 
 
 @Component({
@@ -22,7 +23,7 @@ export class CommitDetailComponent implements OnInit {
 
   hasMoreData : boolean = true;
 
-  constructor(private repoService: RepoService, private spinner: NgxSpinnerService) {
+  constructor(private repoService: RepoService, private spinner: NgxSpinnerService, private toastr: ToastrService) {
   
   }
 
@@ -61,6 +62,10 @@ export class CommitDetailComponent implements OnInit {
         if(data.length < this.entryPerPage){
           this.hasMoreData = false;
         }
+        },
+        error: (error)=>{
+          this.toastr.error("An Error Occured while Fetching Commits", "Error");
+          this.spinner.hide("commit-spinner");
         },
         complete: () =>{
           this.spinner.hide("commit-spinner");
