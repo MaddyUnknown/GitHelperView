@@ -91,7 +91,12 @@ export class HomeComponentComponent implements OnInit {
   logout(){
     this.authService.logout().subscribe({
       next: (value : {status: string, message: string})=>{
-        this.toastr.success(value.message, value.status);
+        if(value.status === "Success"){
+          this.toastr.success(value.message, value.status);
+        }
+        else{
+          this.toastr.error(value.message, value.status);
+        }
       },
       error: (error)=>{
         this.toastr.error("Error Occured", "Error");

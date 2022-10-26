@@ -16,7 +16,6 @@ export class LoginComponentComponent implements OnInit {
   }
 
   login(json: any): void {
-    console.log(json);
     this.authService.authenticate(json.username, json.gitToken).subscribe({
       next:(data: {status: string,message: string})=>{
         if(data.status === "Success" ){

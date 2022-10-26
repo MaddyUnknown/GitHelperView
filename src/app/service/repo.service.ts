@@ -32,72 +32,42 @@ export class RepoService{
 
     //Get list of repo (for user cookie)
     getRepoListAndUserDetails(): Observable<{userAvatarUrl: string, repoList: IRepoDetails[] }> {
-        const returnObj: {userAvatarUrl: string, repoList: IRepoDetails[] }={userAvatarUrl: "https://avatars.githubusercontent.com/u/56967184?v=4",
-                                                                                repoList: [{repoName: 'Tkinter-Calculator', owner: 'MaddyUnknown'},
-                                                                                            {repoName: 'HiveMind', owner: 'MaddyUnknown'},
-                                                                                            {repoName: 'BrainBoost', owner: 'MaddyUnknown'},
-                                                                                            {repoName: 'Serco', owner: 'MaddyUnknown'},
-                                                                                            {repoName: 'Parasetaniousis', owner: 'MaddyUnknown'},
-                                                                                            {repoName: 'Counter Strik: GO', owner: 'StingerM'}]
-                                                                    };
-        
-        
         return this.http.get<{userAvatarUrl: string, repoList: IRepoDetails[] }>('/api/DashBoard/GetUserDetails');
 
     }
 
     //Get commit history for a specific repository (for user cookie)
     getRepoCommitHistory(owner: string, repoName: string, pageNum: number = 1, pageLength: number = Infinity): Observable<ICommitDetails[]>{
-        // const commitLists: ICommitDetails[] = [{commitAuthorName:'MaddyUnknown', commitMessage:"AVST-2256: Creating new feature super important feature but the feauter has bugs so kudos "+repoName, commitDateTime:'2023-09-27T05:57:47Z'},
-        //                                     {commitAuthorName:'MaddyUnknown', commitMessage:"Initial Commit", commitDateTime:'2022-09-27T05:57:47Z'},
-        //                                     {commitAuthorName:'MaddyUnknown', commitMessage:"Initial Commit", commitDateTime:'2022-09-27T05:57:47Z'},
-        //                                     {commitAuthorName:'MaddyUnknown', commitMessage:"Initial Commit", commitDateTime:'2022-09-27T05:57:47Z'},
-        //                                     {commitAuthorName:'MaddyUnknown', commitMessage:"Initial Commit", commitDateTime:'2022-09-27T05:57:47Z'},
-        //                                     {commitAuthorName:'MaddyUnknown', commitMessage:"Initial Commit", commitDateTime:'2022-09-27T05:57:47Z'},
-        //                                     {commitAuthorName:'MaddyUnknown', commitMessage:"Initial Commit", commitDateTime:'2022-09-27T05:57:47Z'},
-        //                                     {commitAuthorName:'MaddyUnknown', commitMessage:"Initial Commit", commitDateTime:'2022-09-27T05:57:47Z'},
-        //                                     {commitAuthorName:'MaddyUnknown', commitMessage:"Initial Commit", commitDateTime:'2022-09-27T05:57:47Z'},
-        //                                     {commitAuthorName:'MaddyUnknown', commitMessage:"Initial Commit", commitDateTime:'2022-09-27T05:57:47Z'}];
-        let commitList: ICommitDetails[] = Array.from({length: pageLength}, (_, i)=>{return {commitAuthorName:'MaddyUnknown '+(pageNum).toString(), commitMessage:"AVST-2256: Creating new feature super important feature but the feauter has bugs so kudos "+repoName, commitDateTime:'2023-09-27T05:57:47Z'};});
-        return of(commitList);
+        let params = new HttpParams().set("ownerName", owner).set("repoName", repoName).set("pageSize", pageLength).set("pageNumber", pageNum);
+        return this.http.get<ICommitDetails[]>('api/Dashboard/GetPaginatedCommits', {params: params});
     }
 
 
     //Get month year pair for specific repository (for user cookie)
     getMonthYearListForRepo(owner: string, repoName: string) : Observable<{month: string, year: string}[]> {
-        const monthYearList: {month: string, year: string}[] =   [
-                                                                    {month: "June", year: "2018"},
-                                                                    {month: "May", year: "2018"},
-                                                                    {month: "April", year: "2018"},
-                                                                    {month: "March", year: "2018"},
-                                                                    {month: "February", year: "2018"},
-                                                                ];
-        return of(monthYearList);
+        let params = new HttpParams().set("ownerName", owner).set("repoName", repoName);
+        return this.http.get<{month: string, year: string}[]>('api/Dashboard/GetMonthYearList', {params: params});
     }
 
     getGraphData(owner: string, repoName: string, month: string, year: string): Observable<{commits: number, day: number}[]>{
-        console.log(`Graph data inputs: ${owner}, ${repoName}, ${month}, ${year}`);
-        const graphData: {commits:number, day: number}[] = Array.from({length: 40}, (_, i) => {return {commits: Math.floor(Math.random()*30), day: i+1}});
 
-        return of(graphData);
+        let params = new HttpParams().set("ownerName", owner).set("repoName", repoName).set("month", month).set("year", year);
+        return this.http.get<{commits: number, day: number}[]>('api/Dashboard/GetDateCount', {params: params});
     }
 
-    getRepoInformation(owner: string, repoName: string): Observable<{numOfColaborators: number, languageList: ILanguageDetails[]}>{
-        const result : {numOfColaborators: number, languageList: ILanguageDetails[]} = {numOfColaborators: 24, languageList: [{language: "C#", bytesOfCode: 35978},
-                                                                                                                                {language: "ASP.NET", bytesOfCode: 20532},
-                                                                                                                                {language: "CSS", bytesOfCode: 2204},
-                                                                                                                                {language: "JavaScript", bytesOfCode: 302}
-                                                                                                                                ]};
-        return of(result);
-    }
+    // getRepoInformation(owner: string, repoName: string): Observable<{numOfColaborators: number, languageList: ILanguageDetails[]}>{
+    //     const result : {numOfColaborators: number, languageList: ILanguageDetails[]} = {numOfColaborators: 24, languageList: [{language: "C#", bytesOfCode: 35978},
+    //                                                                                                                             {language: "ASP.NET", bytesOfCode: 20532},
+    //                                                                                                                             {language: "CSS", bytesOfCode: 2204},
+    //                                                                                                                             {language: "JavaScript", bytesOfCode: 302}
+    //                                                                                                                             ]};
+    //     return of(result);
+    // }
 
     getRepoLanguages(owner: string, repoName: string): Observable<ILanguageDetails[]>{
-        const result : ILanguageDetails[] = [{language: "C#", bytesOfCode: 35978},
-                                                                                                                                {language: "ASP.NET", bytesOfCode: 20532},
-                                                                                                                                {language: "CSS", bytesOfCode: 2204},
-                                                                                                                                {language: "JavaScript", bytesOfCode: 302}
-                                                                                                                                ];
-        return of(result);
+
+        let params = new HttpParams().set("ownerName", owner).set("repoName", repoName);
+        return this.http.get<ILanguageDetails[]>('api/Dashboard/GetRepoLanguages', {params: params});
     }
 
 }

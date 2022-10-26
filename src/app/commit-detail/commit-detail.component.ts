@@ -16,7 +16,7 @@ export class CommitDetailComponent implements OnInit {
   commitList? : ICommitDetails[];
 
 
-  currentPageNumber: number = -1;
+  currentPageNumber: number = 0;
 
   hasMoreData : boolean = true;
 
@@ -37,7 +37,7 @@ export class CommitDetailComponent implements OnInit {
     // Fetch commitList from api based on repositoryDetails
     console.log("here");
     this.hasMoreData = true;
-    this.currentPageNumber = -1;
+    this.currentPageNumber = 0;
     this.commitList = [];
     this.getNextPage();
   }
