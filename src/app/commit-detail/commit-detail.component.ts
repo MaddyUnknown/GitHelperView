@@ -1,4 +1,4 @@
-import { Component, Input, OnInit, SimpleChanges, ɵɵsetComponentScope } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
 import { DEFAULT_REPO_DETAILS, IRepoDetails, RepoService, ICommitDetails } from '../service/repo.service';
 import { NgxSpinnerService } from "ngx-spinner";
 import { ToastrService } from 'ngx-toastr';  
@@ -13,8 +13,12 @@ export class CommitDetailComponent implements OnInit {
 
   readonly entryPerPage: number = 50;
 
-  @Input()
-  repositoryDetails: IRepoDetails = DEFAULT_REPO_DETAILS;
+  @Input() set repositoryDetails(value: IRepoDetails) {
+    this._repositoryDetails = value;
+    this.changeRepo();
+  }
+
+  private _repositoryDetails : IRepoDetails = DEFAULT_REPO_DETAILS;
 
   commitList? : ICommitDetails[];
 
@@ -30,8 +34,8 @@ export class CommitDetailComponent implements OnInit {
   ngOnInit(): void {
   }
     
-  ngOnChanges(changes: SimpleChanges){
-    if(changes.repositoryDetails != null && this.repositoryDetails.owner!=''){
+  changeRepo(){
+    if(this._repositoryDetails != null && this._repositoryDetails.owner!=''){
       this.initAfterRepoSelection();
     }
   }
@@ -57,14 +61,14 @@ export class CommitDetailComponent implements OnInit {
     if(this.hasMoreData){
       // console.log(`Data sent: Repo Owner: ${this.repositoryDetails.owner}, RepoName: ${this.repositoryDetails.repoName}, CurretnPageNum: ${this.currentPageNumber}, Num in page: ${this.entryPerPage}}`);
       this.spinner.show("commit-spinner");
-      this.repoService.getRepoCommitHistory(this.repositoryDetails.owner, this.repositoryDetails.repoName, this.currentPageNumber, this.entryPerPage).subscribe({
+      this.repoService.getRepoCommitHistory(this._repositoryDetails.owner, this._repositoryDetails.repoName, this.currentPageNumber, this.entryPerPage).subscribe({
         next: (data: {commitList: ICommitDetails[], repoName: string, pageNumber: number, pageLength: number, owner: string})=>{
           // console.log("Data received: ", data);
           // console.log(data.pageNumber === this.currentPageNumber);
           // console.log(data.pageLength === this.entryPerPage);
           // console.log(data.repoName === this.repositoryDetails.repoName);
           // console.log(data.owner === this.repositoryDetails.owner);
-          if(data.pageNumber === this.currentPageNumber && data.pageLength === this.entryPerPage && data.repoName === this.repositoryDetails.repoName && data.owner === this.repositoryDetails.owner){
+          if(data.pageNumber === this.currentPageNumber && data.pageLength === this.entryPerPage && data.repoName === this._repositoryDetails.repoName && data.owner === this._repositoryDetails.owner){
             this.commitList = this.commitList?.concat(data.commitList);
             if(data.commitList.length < this.entryPerPage){
               this.hasMoreData = false;
@@ -76,7 +80,8 @@ export class CommitDetailComponent implements OnInit {
           }
         },
         error: (error)=>{
-          this.toastr.error("An Error Occured while Fetching Commits", "Error");
+          if(error !== "suppressed")
+            this.toastr.error("An error occured while fetching commits list", "Error");
           this.spinner.hide("commit-spinner");
         },
         complete: () =>{

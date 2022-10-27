@@ -1,6 +1,8 @@
-import { HttpClient, HttpParams } from "@angular/common/http";
+import { HttpClient, HttpErrorResponse, HttpParams } from "@angular/common/http";
 import { Injectable } from "@angular/core";
+import { Router } from "@angular/router";
 import { catchError, delay, map, Observable, of, throwError } from "rxjs";
+import { ToastrService } from 'ngx-toastr'; 
 
 
 export interface IRepoDetails{
@@ -28,11 +30,15 @@ export interface IMonthYear{
 
 @Injectable()
 export class RepoService{
-    constructor(private http: HttpClient){ }
+    constructor(private http: HttpClient, private router: Router, private toastr: ToastrService){ }
 
     //Get list of repo (for user cookie)
     getRepoListAndUserDetails(): Observable<{userAvatarUrl: string, repoList: IRepoDetails[] }> {
-        return this.http.get<{userAvatarUrl: string, repoList: IRepoDetails[] }>('/api/DashBoard/GetUserDetails');
+        return this.http.get<{userAvatarUrl: string, repoList: IRepoDetails[] }>('/api/DashBoard/GetUserDetails').pipe(
+            catchError( error => {
+                return this.handelError(error); // From 'rxjs'
+            })
+        );
 
     }
 
@@ -43,7 +49,7 @@ export class RepoService{
             return {commitList: response, repoName: repoName, pageNumber: pageNum, pageLength: pageLength, owner: owner};
         }),
         catchError( error => {
-            return throwError(error); // From 'rxjs'
+            return this.handelError(error); // From 'rxjs'
         })
         );
     }
@@ -52,7 +58,11 @@ export class RepoService{
     //Get month year pair for specific repository (for user cookie)
     getMonthYearListForRepo(owner: string, repoName: string) : Observable<{month: string, year: string}[]> {
         let params = new HttpParams().set("ownerName", owner).set("repoName", repoName);
-        return this.http.get<{month: string, year: string}[]>('api/Dashboard/GetMonthYearList', {params: params});
+        return this.http.get<{month: string, year: string}[]>('api/Dashboard/GetMonthYearList', {params: params}).pipe(
+            catchError( error => {
+                return this.handelError(error); // From 'rxjs'
+            })
+        );
     }
 
     getGraphData(owner: string, repoName: string, month: string, year: string): Observable<{result: {commits: number, day: number}[], owner: string, repoName: string, month: string, year: string}>{
@@ -62,7 +72,7 @@ export class RepoService{
             return {result: response, owner: owner, repoName: repoName, month: month, year: year};
         }),
         catchError( error => {
-            return throwError(error); // From 'rxjs'
+            return this.handelError(error); // From 'rxjs'
         })
         );
     }
@@ -70,7 +80,25 @@ export class RepoService{
     getRepoLanguages(owner: string, repoName: string): Observable<ILanguageDetails[]>{
 
         let params = new HttpParams().set("ownerName", owner).set("repoName", repoName);
-        return this.http.get<ILanguageDetails[]>('api/Dashboard/GetRepoLanguages', {params: params});
+        return this.http.get<ILanguageDetails[]>('api/Dashboard/GetRepoLanguages', {params: params}).pipe(
+            catchError( error => {
+                return this.handelError(error); // From 'rxjs'
+            })
+        );
+    }
+
+
+    private handelError(error: HttpErrorResponse){
+        let customError:any;
+        if(error.status == 401){
+            this.router.navigateByUrl('/login');
+            this.toastr.error("Your are not authorised to access this page. Please Log In", "Error");
+            customError = "suppressed";
+        }else{
+            customError = error;
+        }
+
+        return throwError(customError);
     }
 
 

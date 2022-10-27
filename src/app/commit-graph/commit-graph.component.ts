@@ -1,4 +1,4 @@
-import { Component, ElementRef, Input, OnInit, ViewChild, SimpleChanges } from '@angular/core';
+import { Component, ElementRef, Input, OnInit, ViewChild } from '@angular/core';
 import { ChartOptions, ChartData, ChartType  } from 'chart.js';
 import { DEFAULT_REPO_DETAILS, IRepoDetails, RepoService } from '../service/repo.service';
 import { NgxSpinnerService } from "ngx-spinner";
@@ -18,12 +18,18 @@ export class CommitGraphComponent implements OnInit {
   @Input()
   graphColor: string = '#1D8F6D';
   
-  @Input()
-  repositoryDetails: IRepoDetails = DEFAULT_REPO_DETAILS;
+  @Input() set repositoryDetails(value: IRepoDetails) {
+    this._repositoryDetails = value;
+    this.changeRepo();
+  }
 
-  monthYearList?: {month: string, year: string}[];
+  private _repositoryDetails: IRepoDetails = DEFAULT_REPO_DETAILS;
+
+  monthYearList: {month: string, year: string}[];
   
-  monthDropDownValue: string = '';
+  monthDropDownValue: number = -1;
+
+  monthYearSelected: {month: string, year: string};
 
   barChartLabels?: string[];
 
@@ -70,8 +76,8 @@ export class CommitGraphComponent implements OnInit {
     
   }
 
-  ngOnChanges(changes: SimpleChanges){
-    if(changes.repositoryDetails != null && this.repositoryDetails.repoName!=''){
+  changeRepo(){
+    if(this._repositoryDetails != null && this._repositoryDetails.repoName!=''){
       this.initAfterRepoSelection();
     }
   }
@@ -79,18 +85,20 @@ export class CommitGraphComponent implements OnInit {
   initAfterRepoSelection(){
     //Read this.repositoryDetails and call api to get month list
 
-    this.repoService.getMonthYearListForRepo(this.repositoryDetails.owner, this.repositoryDetails.repoName).subscribe({
+    this.repoService.getMonthYearListForRepo(this._repositoryDetails.owner, this._repositoryDetails.repoName).subscribe({
       next: (data: {month: string, year: string}[])=>{
         this.monthYearList = data;
         this.refreshDropdown();
         if(this.monthYearList.length !== 0){
-          this.monthDropDownValue = JSON.stringify(this.monthYearList[0]);
+          this.monthDropDownValue = 0;
+          this.monthYearSelected = this.monthYearList[0];
           this.refreshDropdown();
-          this.refreshGraph(this.monthDropDownValue);
+          this.refreshGraph('0');
         }
       },
       error: (error)=>{
-        this.toastr.error("An error occured while fetching Month List", "Error");
+        if(error !== "suppressed")
+          this.toastr.error("An error occured while fetching contribution month list", "Error");
       }
   })
   }
@@ -104,14 +112,15 @@ export class CommitGraphComponent implements OnInit {
 
 
 
-  refreshGraph(value: string): void{
-    var periodObj : {month: string, year: string} = JSON.parse(value);
-    //Read barcharlabel and barchartvalues from api for value timee interval and use them to set barChartdata
+  refreshGraph(index: string): void{
+    let currentIndex: number = parseInt(index);
+    var periodObj : {month: string, year: string} = this.monthYearList[currentIndex];
     this.spinner.show("graph-spinner");
-    this.repoService.getGraphData(this.repositoryDetails.owner, this.repositoryDetails.repoName, periodObj.month, periodObj.year).subscribe({
+    //Read barcharlabel and barchartvalues from api for value time interval and use them to set barChartdata
+    this.repoService.getGraphData(this._repositoryDetails.owner, this._repositoryDetails.repoName, periodObj.month, periodObj.year).subscribe({
       next:(data: {result: {commits: number, day: number}[], owner: string, repoName: string, month: string, year: string})=>{
-        let monhtYearPair : {month: string, year: string} = JSON.parse(this.monthDropDownValue);
-        if(data.owner === this.repositoryDetails.owner && data.repoName === this.repositoryDetails.repoName && data.month === monhtYearPair.month && data.year === monhtYearPair.year){
+        let monhtYearPair : {month: string, year: string} = this.monthYearList[this.monthDropDownValue];
+        if(data.owner === this._repositoryDetails.owner && data.repoName === this._repositoryDetails.repoName && data.month === monhtYearPair.month && data.year === monhtYearPair.year){
           this.barChartLabels = data.result.map((value)=>value.day.toString());
           this.barChartValues = data.result.map((value)=>value.commits);
           this.barChartData = {
@@ -132,11 +141,12 @@ export class CommitGraphComponent implements OnInit {
           this.spinner.hide("graph-spinner");
         }
         else{
-          console.log("Request Dropped");
+          // console.log("Request Dropped");
         }
       },
       error:(error)=>{
-        this.toastr.error("An Error Occured While fetching Graph Data", "Error");
+        if(error !== "suppressed")
+          this.toastr.error("An error occured while fetching number of contributions", "Error");
         this.spinner.hide("graph-spinner");
       },
       complete: ()=>{

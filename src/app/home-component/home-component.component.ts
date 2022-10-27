@@ -4,6 +4,8 @@ import { ChartData, ChartOptions, ChartType } from 'chart.js';
 import { AuthenticationService } from '../service/auth.service';
 import { DEFAULT_REPO_DETAILS, ILanguageDetails, IRepoDetails, RepoService } from '../service/repo.service';
 import { ToastrService } from 'ngx-toastr'; 
+import { CommitDetailComponent } from '../commit-detail/commit-detail.component';
+import { CommitGraphComponent } from '../commit-graph/commit-graph.component';
 
 declare var $: any;
 
@@ -18,9 +20,12 @@ export class HomeComponentComponent implements OnInit {
   @ViewChild('commitDetailsView') commitDetailsView:ElementRef; 
   @ViewChild('repoDropDown') repoDropDown:ElementRef; 
 
-  selectedRepositoryDetails: string = JSON.stringify(DEFAULT_REPO_DETAILS);
+  @ViewChild(CommitDetailComponent) commitDetailsComp: CommitDetailComponent;
+  @ViewChild(CommitGraphComponent)  commitGraphComp: CommitGraphComponent;
 
-  repoList?: IRepoDetails[];
+  selectedRepositoryValue: number = -1;
+
+  repoList: IRepoDetails[];
 
   userAvatarUrl?: string;
 
@@ -62,7 +67,8 @@ export class HomeComponentComponent implements OnInit {
           this.refreshDropdown();
         },
         error: (error)=>{
-          this.toastr.error("An Error Occured While Fetching Repository List", "Error");
+          if(error !== "suppressed")
+            this.toastr.error("An error occured while fetching repository list", "Error");
         }
     })
   }
@@ -74,9 +80,14 @@ export class HomeComponentComponent implements OnInit {
   }
 
   initOnRepoSelection(value: string){
-    let repoObj : IRepoDetails = JSON.parse(value);
+    let index: number = parseInt(value);
+    let repoObj : IRepoDetails = this.repoList[index];
     this.repoService.getRepoLanguages(repoObj.owner, repoObj.repoName).subscribe({
       next: (data: ILanguageDetails[])=> {
+        //Call child component change only when Repo details were fetched correctly
+         this.commitDetailsComp.repositoryDetails = repoObj;
+         this.commitGraphComp.repositoryDetails = repoObj;
+
         this.languagesList = data;
 
         let label = this.languagesList?.map((x)=> x.language);
@@ -93,7 +104,9 @@ export class HomeComponentComponent implements OnInit {
         }
       },
       error: (error)=>{
-        this.toastr.error("An Error Occured While Fetching Repository Languages", "Error");
+        console.log(error);
+        if(error !== "suppressed")
+          this.toastr.error("An error occured while fetching repository details", "Error");
       }
     });
   }
@@ -101,15 +114,15 @@ export class HomeComponentComponent implements OnInit {
   logout(){
     this.authService.logout().subscribe({
       next: (value : {status: string, message: string})=>{
-        if(value.status === "Success"){
-          this.toastr.success(value.message, value.status);
-        }
-        else{
-          this.toastr.error(value.message, value.status);
-        }
+        // if(value.status === "Success"){
+        //   this.toastr.success(value.message, value.status);
+        // }
+        // else{
+        //   this.toastr.error(value.message, value.status);
+        // }
       },
       error: (error)=>{
-        //this.toastr.error("Error Occured", "Error");
+        
       }
     })
     this.router.navigateByUrl('/login');

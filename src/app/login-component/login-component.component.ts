@@ -19,7 +19,7 @@ export class LoginComponentComponent implements OnInit {
     this.authService.authenticate(json.username, json.gitToken).subscribe({
       next:(data: {status: string,message: string})=>{
         if(data.status === "Success" ){
-          this.toastr.success(data.message, data.status);
+          // this.toastr.success(data.message, data.status);
           this.router.navigateByUrl('/home');
         }
         else{
@@ -27,7 +27,7 @@ export class LoginComponentComponent implements OnInit {
         }
       },
       error: (error)=>{
-        this.toastr.error("Error Occured", "Error");
+        this.toastr.error("Error occured", "Error");
       }
     })
   }
