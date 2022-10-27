@@ -51,7 +51,7 @@ const appRoutes: Routes = [
     BrowserAnimationsModule,
     NgxSpinnerModule,
     ToastrModule.forRoot({
-      positionClass :'toast-bottom-right'
+      positionClass :'toast-top-center'
     }),
     RouterModule.forRoot(appRoutes)
   ],

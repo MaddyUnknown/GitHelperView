@@ -37,20 +37,30 @@ export class CommitGraphComponent implements OnInit {
   barChartData?: ChartData<'line'> = undefined;
   
   chartOptions: ChartOptions = {
-    responsive: true,
-    maintainAspectRatio: false,
     scales: {
-      x: {
-        grid: {
-          display: false
-        }
-      },
       y: {
         grid: {
           display: false
-        }
-      }
-    }
+        },
+        beginAtZero: true,
+        ticks: {
+          stepSize: 1
+        },
+        title: {
+          display: true,
+          text: 'Number of Commits',
+        },
+      },
+      x: {
+        grid: {
+          display: false
+        },
+        title: {
+          display: true,
+          text: 'Day of the Month',
+        },
+      },
+    },
   };
 
   constructor(private repoService: RepoService, private spinner: NgxSpinnerService, private toastr: ToastrService) { }
@@ -99,30 +109,37 @@ export class CommitGraphComponent implements OnInit {
     //Read barcharlabel and barchartvalues from api for value timee interval and use them to set barChartdata
     this.spinner.show("graph-spinner");
     this.repoService.getGraphData(this.repositoryDetails.owner, this.repositoryDetails.repoName, periodObj.month, periodObj.year).subscribe({
-      next:(data: {commits: number, day: number}[])=>{
-        this.barChartLabels = data.map((value)=>value.day.toString());
-        this.barChartValues = data.map((value)=>value.commits);
-        this.barChartData = {
-          labels: this.barChartLabels,
-          datasets: [
-            {
-              label: "No. of Commits",
-              data:  this.barChartValues,
-              borderColor: [this.graphColor],
-              borderWidth: 1.5,
-              hoverBackgroundColor: [this.graphColor],
-              pointBackgroundColor: [this.graphColor],
-              tension: 0.15,
-              fill: false
-            }
-          ]
-        };
+      next:(data: {result: {commits: number, day: number}[], owner: string, repoName: string, month: string, year: string})=>{
+        let monhtYearPair : {month: string, year: string} = JSON.parse(this.monthDropDownValue);
+        if(data.owner === this.repositoryDetails.owner && data.repoName === this.repositoryDetails.repoName && data.month === monhtYearPair.month && data.year === monhtYearPair.year){
+          this.barChartLabels = data.result.map((value)=>value.day.toString());
+          this.barChartValues = data.result.map((value)=>value.commits);
+          this.barChartData = {
+            labels: this.barChartLabels,
+            datasets: [
+              {
+                label: "No. of Commits",
+                data:  this.barChartValues,
+                borderColor: [this.graphColor],
+                borderWidth: 1.5,
+                hoverBackgroundColor: [this.graphColor],
+                pointBackgroundColor: [this.graphColor],
+                tension: 0.15,
+                fill: false
+              }
+            ]
+          };
+          this.spinner.hide("graph-spinner");
+        }
+        else{
+          console.log("Request Dropped");
+        }
       },
       error:(error)=>{
         this.toastr.error("An Error Occured While fetching Graph Data", "Error");
+        this.spinner.hide("graph-spinner");
       },
       complete: ()=>{
-        this.spinner.hide("graph-spinner");
       }
     })
   }

@@ -55,22 +55,34 @@ export class CommitDetailComponent implements OnInit {
     // console.log("scrolled triggered");
     // console.log(this.hasMoreData, this.currentPageNumber);
     if(this.hasMoreData){
+      // console.log(`Data sent: Repo Owner: ${this.repositoryDetails.owner}, RepoName: ${this.repositoryDetails.repoName}, CurretnPageNum: ${this.currentPageNumber}, Num in page: ${this.entryPerPage}}`);
       this.spinner.show("commit-spinner");
       this.repoService.getRepoCommitHistory(this.repositoryDetails.owner, this.repositoryDetails.repoName, this.currentPageNumber, this.entryPerPage).subscribe({
-        next: (data: ICommitDetails[])=>{
-        this.commitList = this.commitList?.concat(data);
-        if(data.length < this.entryPerPage){
-          this.hasMoreData = false;
-        }
+        next: (data: {commitList: ICommitDetails[], repoName: string, pageNumber: number, pageLength: number, owner: string})=>{
+          // console.log("Data received: ", data);
+          // console.log(data.pageNumber === this.currentPageNumber);
+          // console.log(data.pageLength === this.entryPerPage);
+          // console.log(data.repoName === this.repositoryDetails.repoName);
+          // console.log(data.owner === this.repositoryDetails.owner);
+          if(data.pageNumber === this.currentPageNumber && data.pageLength === this.entryPerPage && data.repoName === this.repositoryDetails.repoName && data.owner === this.repositoryDetails.owner){
+            this.commitList = this.commitList?.concat(data.commitList);
+            if(data.commitList.length < this.entryPerPage){
+              this.hasMoreData = false;
+            }
+            this.spinner.hide("commit-spinner");
+          }
+          else{
+            // console.log("page discarded");
+          }
         },
         error: (error)=>{
           this.toastr.error("An Error Occured while Fetching Commits", "Error");
           this.spinner.hide("commit-spinner");
         },
         complete: () =>{
-          this.spinner.hide("commit-spinner");
+          
         }
-    })
+      })
       
     }
   }

@@ -1,6 +1,6 @@
 import { HttpClient, HttpParams } from "@angular/common/http";
 import { Injectable } from "@angular/core";
-import { delay, Observable, of } from "rxjs";
+import { catchError, delay, map, Observable, of, throwError } from "rxjs";
 
 
 export interface IRepoDetails{
@@ -37,9 +37,15 @@ export class RepoService{
     }
 
     //Get commit history for a specific repository (for user cookie)
-    getRepoCommitHistory(owner: string, repoName: string, pageNum: number = 1, pageLength: number = Infinity): Observable<ICommitDetails[]>{
+    getRepoCommitHistory(owner: string, repoName: string, pageNum: number = 1, pageLength: number = Infinity): Observable<{commitList: ICommitDetails[], repoName: string, pageNumber: number, pageLength: number, owner: string}>{
         let params = new HttpParams().set("ownerName", owner).set("repoName", repoName).set("pageSize", pageLength).set("pageNumber", pageNum);
-        return this.http.get<ICommitDetails[]>('api/Dashboard/GetPaginatedCommits', {params: params});
+        return this.http.get<ICommitDetails[]>('api/Dashboard/GetPaginatedCommits', {params: params}).pipe(map((response: ICommitDetails[])=>{
+            return {commitList: response, repoName: repoName, pageNumber: pageNum, pageLength: pageLength, owner: owner};
+        }),
+        catchError( error => {
+            return throwError(error); // From 'rxjs'
+        })
+        );
     }
 
 
@@ -49,25 +55,25 @@ export class RepoService{
         return this.http.get<{month: string, year: string}[]>('api/Dashboard/GetMonthYearList', {params: params});
     }
 
-    getGraphData(owner: string, repoName: string, month: string, year: string): Observable<{commits: number, day: number}[]>{
+    getGraphData(owner: string, repoName: string, month: string, year: string): Observable<{result: {commits: number, day: number}[], owner: string, repoName: string, month: string, year: string}>{
 
         let params = new HttpParams().set("ownerName", owner).set("repoName", repoName).set("month", month).set("year", year);
-        return this.http.get<{commits: number, day: number}[]>('api/Dashboard/GetDateCount', {params: params});
+        return this.http.get<{commits: number, day: number}[]>('api/Dashboard/GetDateCount', {params: params}).pipe(map((response: {commits: number, day: number}[])=>{
+            return {result: response, owner: owner, repoName: repoName, month: month, year: year};
+        }),
+        catchError( error => {
+            return throwError(error); // From 'rxjs'
+        })
+        );
     }
-
-    // getRepoInformation(owner: string, repoName: string): Observable<{numOfColaborators: number, languageList: ILanguageDetails[]}>{
-    //     const result : {numOfColaborators: number, languageList: ILanguageDetails[]} = {numOfColaborators: 24, languageList: [{language: "C#", bytesOfCode: 35978},
-    //                                                                                                                             {language: "ASP.NET", bytesOfCode: 20532},
-    //                                                                                                                             {language: "CSS", bytesOfCode: 2204},
-    //                                                                                                                             {language: "JavaScript", bytesOfCode: 302}
-    //                                                                                                                             ]};
-    //     return of(result);
-    // }
 
     getRepoLanguages(owner: string, repoName: string): Observable<ILanguageDetails[]>{
 
         let params = new HttpParams().set("ownerName", owner).set("repoName", repoName);
         return this.http.get<ILanguageDetails[]>('api/Dashboard/GetRepoLanguages', {params: params});
     }
+
+
+    
 
 }
