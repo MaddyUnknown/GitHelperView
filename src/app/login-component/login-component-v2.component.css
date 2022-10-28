@@ -1,0 +1,16 @@
+.login-container{
+    background: url('/assets/img/background-img.png');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+}
+
+.pannel-card {
+    max-width: 500px;
+    top: 60px;
+    position: relative;
+}
+
+.error-message{
+    left:35px; 
+}

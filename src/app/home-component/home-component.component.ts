@@ -11,8 +11,8 @@ declare var $: any;
 
 @Component({
   selector: 'home-component',
-  templateUrl: './home-component.component.html',
-  styleUrls: ['./home-component.component.css']
+  templateUrl: './home-component-v2.component.html',
+  styleUrls: ['./home-component-v2.component.css']
 })
 export class HomeComponentComponent implements OnInit {
 
@@ -77,6 +77,10 @@ export class HomeComponentComponent implements OnInit {
     setTimeout(() => {
       $(this.repoDropDown.nativeElement).selectpicker('refresh');
     });
+  }
+
+  getUserName(): string {
+    return this.authService.getAuthUserName();
   }
 
   initOnRepoSelection(value: string){

@@ -1,0 +1,50 @@
+<div class="container-fluid h-min-100-vh login-container d-flex flex-column p-2 p-md-4">
+    <nav class="mb-2 d-flex flex-column flex-md-row align-items-center justify-content-between">
+        <h1 id="logo" class="font-weight-normal"><span class="font-weight-bold custom-color-primary">Git</span>Helper</h1>
+        <span id="profile-component" class="">
+            <div class="dropdown">
+                <button class="btn dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    <img class="avatarPic" src={{userAvatarUrl}}>
+                </button>
+                <div class="dropdown-menu dropdown-menu-right" aria-labelledby="dropdownMenuButton">
+                  <button class="dropdown-item text-danger" (click)="logout()">Log Out</button> <!-- to decide what to do-->
+                </div>
+              </div>
+        </span>
+    </nav>
+    <main class="d-flex flex-column align-items-center login-pannel flex-fill">
+        <div class="row w-100">
+            <div class="col-12 col-md-5">Welcome, {{"InsertLaterMyNAme"}}</div>
+            <div class="col-12 col-md-7">
+                <div class="row">
+                    <div class="col-12 col-md-6 p-0 offset-md-6">
+                        <select #repoDropDown class="repository-input selectpicker w-100" name="repository-input" [disabled]="repoList==null || repoList.length==0" [(ngModel)]="selectedRepositoryValue" (change)="initOnRepoSelection($any($event.target).value)">
+                            <option value='-1' disabled selected>Enter a Repository Name</option>
+                            <option *ngFor="let repo of repoList;index as i" [value]="i" [innerText]="repo.repoName"></option>
+                        </select>
+                    </div>
+                </div>
+                
+            </div>
+        </div>
+        <div class="container-fluid">
+            <div class="row custom-100 bg-danger custom-cus">
+                <div class="col-12 col-md-5 order-2 order-md-1 custom-panel">rata</div>
+                <div class="col-12 col-md-7 order-1 order-md-2">
+                    <div class="row">
+                        <div class="col-12 col-sm-6 custom-panel">Span 2</div>
+                        <div class="col-12 col-sm-6 custom-panel">Span 2</div>
+                    </div>
+                    <div class="row">
+                        <div class="col-12 custom-panel">Span 2</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        
+    </main>
+    <footer class="bg-danger">
+        <span class="custom-color-secondary-text font-weight-bold"><i class="fa-regular fa-copyright"></i> NRI Fintech, 2022</span>
+    </footer>
+</div>
