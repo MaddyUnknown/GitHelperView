@@ -23,7 +23,10 @@ export class LoginComponentComponent implements OnInit {
           this.router.navigateByUrl('/home');
         }
         else{
-          this.toastr.error(data.message, data.status);
+          if(data.message == "Bad Credentials")
+            this.toastr.error("Invalid username/password", data.status);
+          else
+            this.toastr.error(data.message, data.status);
         }
       },
       error: (error)=>{
