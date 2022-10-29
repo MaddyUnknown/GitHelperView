@@ -6,7 +6,7 @@
         </svg>
     </div>
     <div class="ml-4 flex-fill">
-        <p class="card-text my-0"><small class="text-muted">{{commitDateTime | date:'MMM dd, yyyy HH:mm'}}</small></p>
+        <p class="card-text my-0"><small class="text-muted">{{commitDateTime | date:'MMM dd, yyyy HH:mm' : getPrefTimeOffset()}}</small></p>
         <p class="card-text my-0">{{commitMessage}}</p>
         <p class="card-text my-0"><small class="text-muted">{{commitAuthorName}}</small></p>
     </div>

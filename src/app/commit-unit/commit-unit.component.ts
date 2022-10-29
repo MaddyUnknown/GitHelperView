@@ -1,4 +1,5 @@
 import { Component, Input } from '@angular/core';
+import { UserPreferenceService } from '../service/user.preference.service';
 
 @Component({
   selector: 'app-commit-unit',
@@ -17,6 +18,10 @@ export class CommitUnitComponent {
   commitAuthorName: string = '';
 
 
-  constructor() { }
+  constructor(private userPrefService: UserPreferenceService) { }
+
+  getPrefTimeOffset(): string{
+    return this.userPrefService.getPreferedTimeOffset();
+  }
 
 }

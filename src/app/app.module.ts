@@ -22,6 +22,7 @@ import { CommitGraphComponent } from './commit-graph/commit-graph.component';
 import { Json2String, String2Json } from './custom-pipes/json.stringify.pipe';
 import { AuthenticationService } from './service/auth.service';
 import { AuthGuardService } from './service/auth.guard.service';
+import { UserPreferenceService } from './service/user.preference.service';
 
 const appRoutes: Routes = [
   {path: 'login', component: LoginComponentComponent},
@@ -56,7 +57,7 @@ const appRoutes: Routes = [
     RouterModule.forRoot(appRoutes)
   ],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
-  providers: [RepoService, AuthenticationService, AuthGuardService],
+  providers: [RepoService, AuthenticationService, AuthGuardService, UserPreferenceService],
   bootstrap: [AppComponent]
 })
 export class AppModule { }
