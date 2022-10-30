@@ -11,6 +11,18 @@
 
 .avatarPic {
     width: 40px;
-    border: 1px solid var(--primary-color);;
+    border: 1px solid var(--primary-color);
     border-radius: 25px;
+}
+
+.repo-details,
+.language-view-container {
+    width : 100%;
+}
+
+@media (min-width: 576px) { 
+    .repo-details,
+    .language-view-container {
+        width : 50%;
+    }
 }

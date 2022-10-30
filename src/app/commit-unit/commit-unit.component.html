@@ -1,13 +1,11 @@
-<div class="commit-unit d-flex flex-row align-items-center pb-4">
-    <div>
-        <svg class ="commit-icon" width="30" height="32" viewBox="0 0 30 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <ellipse cx="15" cy="16" rx="15" ry="16" fill="black"/>
-            <path fill-rule="evenodd" clip-rule="evenodd" d="M16.9047 8H13.0952V14.0952H7V17.9048H13.0952V24H16.9047V17.9048H23V14.0952H16.9047V8Z" fill="white"/>
-        </svg>
+<div class="commit-unit d-flex flex-row align-items-center pb-4 position-relative w-100">
+    <div class="{{_commitPosition}}"></div>
+    <div class="position-relative dot-icon">
+        <i class="fa-solid fa-circle custom-color-primary"></i>
     </div>
-    <div class="ml-4 flex-fill">
+    <div class="ml-4 flex-fill pr-5 w-100">
         <p class="card-text my-0"><small class="text-muted">{{commitDateTime | date:'MMM dd, yyyy HH:mm' : getPrefTimeOffset()}}</small></p>
-        <p class="card-text my-0">{{commitMessage}}</p>
+        <p class="card-text my-0 w-100" style="word-wrap: break-word;">{{commitMessage}}</p>
         <p class="card-text my-0"><small class="text-muted">{{commitAuthorName}}</small></p>
     </div>
 </div>

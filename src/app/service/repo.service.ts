@@ -16,6 +16,7 @@ export interface ICommitDetails{
     commitMessage: string;
     commitAuthorName: string;
     commitDateTime: string;
+    commitPosition?: string;
 }
 
 export interface ILanguageDetails{
@@ -85,6 +86,18 @@ export class RepoService{
                 return this.handelError(error); // From 'rxjs'
             })
         );
+    }
+
+    getRepoOtherDetails(owner: string, repoName: string): Observable<{createdDate: Date, updatedDate: Date, repoLink: string, repoName: string, owner: string}>{
+        let params = new HttpParams().set("ownerName", owner).set("repoName", repoName);
+        return this.http.get<{createdAt: string, updatedAt: string, repoLink: string, repoName: string, owner: string}>('api/Dashboard/GetParticularRepoDetails', {params: params}).pipe(
+            map((response: {createdAt: string, updatedAt: string, repoLink: string, repoName: string, owner: string})=>{
+                console.log(response);
+            return {createdDate: new Date(response.createdAt), updatedDate: new Date(response.createdAt), repoLink: response.repoLink, repoName: response.repoName, owner: response.owner};
+        }),
+        catchError( error => {
+            return this.handelError(error); // From 'rxjs'
+        }));
     }
 
 

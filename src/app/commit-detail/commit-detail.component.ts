@@ -20,7 +20,7 @@ export class CommitDetailComponent implements OnInit {
 
   private _repositoryDetails : IRepoDetails = DEFAULT_REPO_DETAILS;
 
-  commitList? : ICommitDetails[];
+  commitList : ICommitDetails[];
 
 
   currentPageNumber: number = 0;
@@ -69,9 +69,23 @@ export class CommitDetailComponent implements OnInit {
           // console.log(data.repoName === this.repositoryDetails.repoName);
           // console.log(data.owner === this.repositoryDetails.owner);
           if(data.pageNumber === this.currentPageNumber && data.pageLength === this.entryPerPage && data.repoName === this._repositoryDetails.repoName && data.owner === this._repositoryDetails.owner){
-            this.commitList = this.commitList?.concat(data.commitList);
+            let commitListData: ICommitDetails[] = data.commitList.map((value: ICommitDetails, index: number)=>{
+              if(this.commitList.length === 0 && data.commitList.length === 1){
+                value.commitPosition = "";
+              }
+              else if(this.commitList.length === 0 && index === 0){
+                value.commitPosition = "guide-line-first";
+              }
+              else{
+                value.commitPosition = "guide-line-full";
+              }
+              return value;
+            })
+            this.commitList = this.commitList?.concat(commitListData);
             if(data.commitList.length < this.entryPerPage){
               this.hasMoreData = false;
+              if(this.commitList.length > 1)
+                this.commitList[this.commitList.length-1].commitPosition = "guide-line-last";
             }
             this.spinner.hide("commit-spinner");
           }

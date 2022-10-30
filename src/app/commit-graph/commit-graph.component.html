@@ -1,5 +1,6 @@
 <div class="graph-pannel p-1 p-md-4">
-    <div class="d-flex justify-content-end mb-2">
+    <div class="d-flex flex-column flex-sm-row align-items-center justify-content-between mb-2">
+        <div class="h5 font-weight-bold custom-color-primary">Month-wise Contributions</div>
         <select #monthDropDown [disabled]="monthYearList==null || monthYearList.length==0" class="month-year-select selectpicker" (change)="refreshGraph($any($event.target).value)" [(ngModel)]="monthDropDownValue">
             <option *ngFor="let period of monthYearList; index as i" [value]="i" [innerHtml]="getStringFromPeriod(period.month, period.year)"></option>
         </select>
@@ -13,7 +14,7 @@
                                     type = "ball-pulse-sync"
                                     [fullScreen] = "false"></ngx-spinner>
         </div>
-        <canvas
+        <canvas style="max-height: 370px;"
         baseChart
         [legend]="false"
         [data]="barChartData"

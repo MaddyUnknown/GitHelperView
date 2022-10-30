@@ -8,6 +8,17 @@ import { UserPreferenceService } from '../service/user.preference.service';
 })
 export class CommitUnitComponent {
 
+  @Input() set commitPosition(value: string | undefined){
+    if(value !== undefined){
+      this._commitPosition = value;
+    }
+    else{
+      this._commitPosition = "";
+    }
+  };
+
+  _commitPosition: string;
+
   @Input()
   commitDateTime : Date = new Date('2022-09-27T05:57:47Z');
 

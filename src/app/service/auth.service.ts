@@ -6,10 +6,15 @@ import { map, Observable } from "rxjs";
 @Injectable()
 export class AuthenticationService{
 
-    private _authenticatedUser: string = "";
 
     getAuthUserName(): string {
-        return this._authenticatedUser;
+        let username: string| null = localStorage.getItem('userName');
+        if(username === null){
+            return "";
+        }
+        else{
+            return username;
+        }
     }
 
     constructor(private http: HttpClient){ }
@@ -21,7 +26,7 @@ export class AuthenticationService{
     authenticate(username:string, token:string): Observable<{status: string,message: string}>{
         return this.http.post<{status: string,message: string}>('/api/Login/AuthenticateUser', {username : username, token : token}).pipe(
             map((response: {status: string,message: string})=>{
-                this._authenticatedUser = username;
+                localStorage.setItem('userName', username);
                 return response;
             })
         );
@@ -30,7 +35,7 @@ export class AuthenticationService{
     logout(): Observable<{status: string,message: string}> {
         return this.http.get<{status: string,message: string}>('/api/Login/Logout').pipe(
             map((response: {status: string, message: string})=>{
-                this._authenticatedUser = "";
+                localStorage.removeItem('userName');
                 return response;
             })
         );

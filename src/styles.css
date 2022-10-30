@@ -2,6 +2,7 @@
 .light-theme {
     --primary-color : #1D8F6D;
     --secondary-color: #385855;
+    --tertiary-color: #cfc69b;
     --glass-light-primary-color: #fefffdf2;
     --dark-gray: #6A6A6A;
     --primart-text-color: #000;
@@ -21,6 +22,24 @@ body,html {
 }
 * {
     box-sizing: border-box;
+}
+
+body{
+    font-family: 'Inter', sans-serif;
+    font-size: 16px;
+}
+
+a{
+    color: var(--primart-text-color);
+}
+
+a:hover, 
+a:focus{
+    color: var(--primary-color) !important;
+}
+
+.trademark {
+    font-size: 12px;
 }
 
 
@@ -49,6 +68,14 @@ body,html {
     color: var(--absolute-for-color);
 }
 
+/* Font utils */
+.font-weight-medium{
+    font-weight: 500;
+}
+
+.font-weight-semibold{
+    font-weight: 600;
+}
 
 /* used for v2 screen */
 .custom-panel{
@@ -105,13 +132,14 @@ body,html {
     border-radius: 50px;
 }
 
-/* .dropdown-menu {
-    background-color: #fefffda2;
-    box-shadow: 0px 15px 30px 1px #00000040;
+.dropdown-menu {
+    background-color: var(--glass-light-primary-color);
+    z-index: 99999999;
+    /* box-shadow: 0px 15px 30px 1px #00000040;
     border-radius: 20px;
     border-radius: 20px;
-    max-height: 700px;
-} */
+    max-height: 700px; */
+}
 
 .dropdown-menu .dropdown-item.active,
 .dropdown-menu .dropdown-item:focus {
@@ -121,5 +149,5 @@ body,html {
 
 /* ngx-toastr alignment */
 .toast-top-center {
-    top: 30px !important;
+    top: 22px !important;
 }
