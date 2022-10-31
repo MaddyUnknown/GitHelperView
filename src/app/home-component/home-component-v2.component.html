@@ -60,19 +60,19 @@
                     </div>
                     <div class="language-view-container">
                         <div class="laungage-used-view custom-panel h-100 p-4 ml-sm-3">
-                            <div class="custom-color-dark-grey">
-                                <div class="h5 font-weight-bold mb-4 custom-color-primary">Languages Used</div>
+                            <div class="h5 font-weight-bold mb-4 custom-color-primary">Languages Used</div>
+                            <div class="custom-color-dark-grey position-relative">
                                 <div class="d-block">
-                                    <div class="text-center">&nbsp;<small *ngIf="this.languagesList === undefined || this.languagesList.length === 0" class="custom-color-dark-grey">No Language Related Information</small></div>
                                     <canvas style="max-height: 200px;" 
-                                            baseChart
-                                            
-                                            [data]="chartData"
-                                            [type]="chartType">
-                                            [options]="chartOptions"
-                                            >
+                                    baseChart
+                                    
+                                    [data]="chartData"
+                                    [type]="chartType">
+                                    [options]="chartOptions"
+                                    >
                                     </canvas>
                                 </div>
+                                <div *ngIf="this.languagesList === undefined || this.languagesList.length === 0" class="text-center position-absolute w-100" style="top: 0">&nbsp;<small class="custom-color-dark-grey">No language related information found</small></div>
                             </div>
                         </div>
                         
@@ -84,7 +84,7 @@
             </div> 
         </div>
     </main>
-    <footer class="">
+    <footer class="mt-2">
         <span class="custom-color-secondary-text font-weight-bold trademark"><i class="fa-regular fa-copyright"></i> NRI Fintech, 2022</span>
     </footer>
 </div>

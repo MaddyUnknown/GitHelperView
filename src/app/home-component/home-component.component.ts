@@ -138,7 +138,6 @@ export class HomeComponentComponent implements OnInit {
             this.repoOwner = data.owner;
           },
           error: (error)=>{
-            console.log(error);
             if(error !== "suppressed")
               this.toastr.error("An error occured while fetching repository details", "Error");
           }
@@ -146,7 +145,6 @@ export class HomeComponentComponent implements OnInit {
 
       },
       error: (error)=>{
-        console.log(error);
         if(error !== "suppressed")
           this.toastr.error("An error occured while fetching repository details", "Error");
       }
