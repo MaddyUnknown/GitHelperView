@@ -1,0 +1,28 @@
+.login-container{
+    background: url('/assets/img/background-img.png');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+}
+
+.dropdown-toggle{
+    border: none;
+}
+
+.avatarPic {
+    width: 40px;
+    border: 1px solid var(--primary-color);
+    border-radius: 25px;
+}
+
+.repo-details,
+.language-view-container {
+    width : 100%;
+}
+
+@media (min-width: 576px) { 
+    .repo-details,
+    .language-view-container {
+        width : 50%;
+    }
+}

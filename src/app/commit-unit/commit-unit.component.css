@@ -1,3 +1,29 @@
-.commit-icon ellipse {
-  fill: var(--primary-color);
+.guide-line-full{
+  position:absolute;
+  content: "";
+  height: 100%;
+  width: 3px;
+  left: 6px;
+  background-color: var(--tertiary-color);
+
+}
+
+.guide-line-first{
+  position:absolute;
+  content: "";
+  height: 50%;
+  top: 47%;
+  width: 3px;
+  left: 6px;
+  background-color: var(--tertiary-color);
+}
+
+.guide-line-last{
+  position:absolute;
+  content: "";
+  height: 58%;
+  top: -12%;
+  width: 3px;
+  left: 6px;
+  background-color: var(--tertiary-color);
 }

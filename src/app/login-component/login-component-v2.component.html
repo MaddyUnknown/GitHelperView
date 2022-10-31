@@ -1,0 +1,39 @@
+<div class="container-fluid h-min-100-vh login-container d-flex flex-column p-2 p-md-4">
+    <nav class="mb-2">
+        <h1 id="logo" class="font-weight-normal"><span class="font-weight-bold custom-color-primary">Git</span>Helper</h1>
+    </nav>
+    <main class="d-flex flex-column align-items-center login-pannel flex-fill">
+        <div class="pannel-card custom-panel px-3 py-5 px-md-4 py-md-5 pb-3 w-100">
+            <div class="text-center mb-5">
+                <div class="h2">Welcome to <span id="logo" class="font-weight-normal"><span class="font-weight-bold custom-color-primary">Git</span>Helper</span></div>
+                <div>Please enter your GitHub username and token to continue</div>
+            </div>
+            <div class="login-form row w-100 mx-auto">
+                <form #loginform = "ngForm" class="container col-12 p-0 py-3">
+                    <div class="form-group mb-4">
+                        <div class="text-input-field">
+                            <input ngModel #username="ngModel" id="username" type="input" class="form-control" name="username" placeholder="Username" required autofocus>
+                            <i class="fa-solid fa-user" data-toggle="tooltip" data-placement="bottom" title="Enter your GitHub username here"></i>
+                        </div>
+                        <small *ngIf="username.touched && !username.valid" class="error-message text-danger position-absolute">Username is mandatory</small>
+                    </div>
+                    <div class="form-group mb-4">
+                        <div class="text-input-field">
+                            <input ngModel #gitToken="ngModel" id="gitToken" type="password" class="form-control" name="gitToken" placeholder="Personal access token" required pattern="^[0-9a-zA-Z_]{40}$">
+                            <i class="fa-solid fa-key" data-toggle="tooltip" data-placement="bottom" 
+                                title="Enter a valid Personal Access Token here. The personal access token can be generated from Developer settings of github settings "></i>
+                        </div>
+                        <small *ngIf="gitToken.touched && gitToken.errors!=null && gitToken.errors.required" class="error-message text-danger position-absolute">Github Token is mandatory</small>
+                        <small *ngIf="gitToken.touched && gitToken.errors!=null && gitToken.errors.pattern" class=" error-message text-danger position-absolute">Invalid Token provided</small>
+                    </div>
+                    <div class="form-group d-flex flex-row-reverse">
+                        <button class="btn px-5 custom-btn-primary round-btn" (click)="login(loginform.value)" [disabled]="!loginform.valid">Enter</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </main>
+    <footer class="mt-2">
+        <span class="custom-color-secondary-text font-weight-bold trademark"><i class="fa-regular fa-copyright"></i> NRI Fintech, 2022</span>
+    </footer>
+</div>

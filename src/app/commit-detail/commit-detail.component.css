@@ -1,15 +1,16 @@
 .commit-list-container {
-    white-space: initial;
-    overflow: scroll;
+    word-wrap: break-word;
+    overflow-y: scroll;
+    overflow-x: hidden;
 }
 
 
 /* Remove scrollbar from commit list view */
-.commit-list-container::-webkit-scrollbar {
+/* .commit-list-container::-webkit-scrollbar {
     display: none;
 }
 
 .commit-list-container {
     -ms-overflow-style: none;
     scrollbar-width: none;
-}
+} */

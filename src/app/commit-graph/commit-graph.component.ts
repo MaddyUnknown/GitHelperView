@@ -43,6 +43,7 @@ export class CommitGraphComponent implements OnInit {
   barChartData?: ChartData<'line'> = undefined;
   
   chartOptions: ChartOptions = {
+    responsive:true,
     scales: {
       y: {
         grid: {
@@ -73,6 +74,7 @@ export class CommitGraphComponent implements OnInit {
 
   ngOnInit(): void {
     //this.initAfterRepoSelection();
+    this.refreshDropdown();
     
   }
 
