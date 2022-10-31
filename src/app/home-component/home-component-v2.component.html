@@ -63,6 +63,7 @@
                             <div class="custom-color-dark-grey">
                                 <div class="h5 font-weight-bold mb-4 custom-color-primary">Languages Used</div>
                                 <div class="d-block">
+                                    <div class="text-center">&nbsp;<small *ngIf="this.languagesList === undefined || this.languagesList.length === 0" class="custom-color-dark-grey">No Language Related Information</small></div>
                                     <canvas style="max-height: 200px;" 
                                             baseChart
                                             
@@ -70,7 +71,7 @@
                                             [type]="chartType">
                                             [options]="chartOptions"
                                             >
-                                        </canvas>
+                                    </canvas>
                                 </div>
                             </div>
                         </div>

@@ -4,7 +4,7 @@
         <div class="commitUnit" *ngFor="let commit of commitList; index as i">
                     <app-commit-unit [commitPosition]="commit.commitPosition" [commitAuthorName]="commit.commitAuthorName" [commitMessage]="commit.commitMessage" [commitDateTime]="commit.commitDateTime | string2date"></app-commit-unit>
                 </div>
-                <div *ngIf="!hasMoreData" class="text-center"><small class="custom-color-dark-grey">No More Commits</small></div>
+                <div *ngIf="!hasMoreData" class="text-center"><small class="custom-color-dark-grey">No more commits</small></div>
                 <div class="row">
                     <div class="col-12 p-5">
                         <ngx-spinner name="commit-spinner" bdOpacity = 0.9

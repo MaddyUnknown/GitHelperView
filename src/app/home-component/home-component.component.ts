@@ -78,6 +78,11 @@ export class HomeComponentComponent implements OnInit {
           this.repoList = data.repoList;
           this.userAvatarUrl = data.userAvatarUrl;
           this.refreshDropdown();
+          if(this.repoList.length !== 0){
+            this.selectedRepositoryValue = 0;
+            this.refreshDropdown();
+            this.initOnRepoSelection('0');
+          }
         },
         error: (error)=>{
           if(error !== "suppressed")
