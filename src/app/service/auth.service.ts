@@ -1,11 +1,13 @@
 import { HttpClient } from "@angular/common/http";
 import { Injectable } from "@angular/core";
 import { map, Observable } from "rxjs";
+import { environment } from "src/environments/environment";
 
 
 @Injectable()
 export class AuthenticationService{
 
+    baseUrl : string = "";
 
     getAuthUserName(): string {
         let username: string| null = localStorage.getItem('userName');
@@ -17,14 +19,16 @@ export class AuthenticationService{
         }
     }
 
-    constructor(private http: HttpClient){ }
+    constructor(private http: HttpClient){ 
+        this.baseUrl = environment.webApiBaseUrl;
+    }
 
     isAuthenticated(): Observable<{status: string,message: string}>{
-        return this.http.get<{status: string,message: string}>('/api/Login/IsAuthenticated');
+        return this.http.get<{status: string,message: string}>(this.baseUrl + '/api/Login/IsAuthenticated');
     }
 
     authenticate(username:string, token:string): Observable<{status: string,message: string}>{
-        return this.http.post<{status: string,message: string}>('/api/Login/AuthenticateUser', {username : username, token : token}).pipe(
+        return this.http.post<{status: string,message: string}>(this.baseUrl + '/api/Login/AuthenticateUser', {username : username, token : token}).pipe(
             map((response: {status: string,message: string})=>{
                 localStorage.setItem('userName', username);
                 return response;
@@ -33,7 +37,7 @@ export class AuthenticationService{
     }
 
     logout(): Observable<{status: string,message: string}> {
-        return this.http.get<{status: string,message: string}>('/api/Login/Logout').pipe(
+        return this.http.get<{status: string,message: string}>(this.baseUrl + '/api/Login/Logout').pipe(
             map((response: {status: string, message: string})=>{
                 localStorage.removeItem('userName');
                 return response;
