@@ -3,6 +3,8 @@ import { AuthenticationService } from '../service/auth.service';
 import { ToastrService } from 'ngx-toastr';  
 import { Route, Router } from '@angular/router';
 
+declare var $: any;
+
 @Component({
   selector: 'login-component',
   templateUrl: './login-component-v2.component.html',
@@ -13,6 +15,11 @@ export class LoginComponentComponent implements OnInit {
   constructor(private authService: AuthenticationService, private toastr: ToastrService, private router: Router) {}
 
   ngOnInit(): void {
+
+    //Init Bootstrap tooltips
+    $(function () {
+      $('[data-toggle="tooltip"]').tooltip()
+    })
   }
 
   login(json: any): void {
