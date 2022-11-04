@@ -27,7 +27,7 @@ import { UserPreferenceService } from './service/user.preference.service';
 const appRoutes: Routes = [
   {path: 'login', component: LoginComponentComponent},
   {path: 'home', component: HomeComponentComponent, canActivate: [AuthGuardService]},
-  {path: '', redirectTo: 'login', pathMatch: 'full'},
+  {path: '', redirectTo: 'home', pathMatch: 'full'},
   {path: '**', redirectTo: 'home', pathMatch: 'full'}
 ]
 
