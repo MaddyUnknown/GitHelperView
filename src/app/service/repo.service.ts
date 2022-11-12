@@ -98,7 +98,7 @@ export class RepoService{
         let params = new HttpParams().set("ownerName", owner).set("repoName", repoName);
         return this.http.get<{createdAt: string, updatedAt: string, repoLink: string, repoName: string, owner: string}>(this.baseUrl + '/api/Dashboard/GetParticularRepoDetails', {params: params}).pipe(
             map((response: {createdAt: string, updatedAt: string, repoLink: string, repoName: string, owner: string})=>{
-            return {createdDate: new Date(response.createdAt), updatedDate: new Date(response.createdAt), repoLink: response.repoLink, repoName: response.repoName, owner: response.owner};
+            return {createdDate: new Date(response.createdAt), updatedDate: new Date(response.updatedAt), repoLink: response.repoLink, repoName: response.repoName, owner: response.owner};
         }),
         catchError( error => {
             return this.handelError(error); // From 'rxjs'
