@@ -7,6 +7,8 @@ import { ToastrService } from 'ngx-toastr';
 import { CommitDetailComponent } from '../commit-detail/commit-detail.component';
 import { CommitGraphComponent } from '../commit-graph/commit-graph.component';
 import { UserPreferenceService } from '../service/user.preference.service';
+import { ITheme, ThemeService } from '../service/theme.service';
+import { reduce } from 'rxjs';
 
 declare var $: any;
 
@@ -48,32 +50,29 @@ export class HomeComponentComponent implements OnInit {
   
   chartData?: ChartData<ChartType>;
 
+  languageLabel?: string[];
+  
+  languageData?: number[];
+
   backgroundColors: any = ['#1D8F6D', '#385855', '#CFC69B', '#90D7FF', '#896978', '#F45B69'];
 
   chartLabels?: string[];
 
   chartOptions : ChartOptions = {
-    responsive: true,
-    maintainAspectRatio: false, 
-    scales: {
-      x: {
-        grid: {
-          display: false
-        }
-      },
-      y: {
-        grid: {
-          display: false
+    plugins: {
+      legend: {
+        labels: {
+          color: 'white'
         }
       }
     }
   };
 
-  constructor(private repoService : RepoService, private authService: AuthenticationService, private router : Router, private toastr: ToastrService, private userPrefService: UserPreferenceService) { }
+  constructor(private repoService : RepoService, private authService: AuthenticationService, private router : Router, private toastr: ToastrService, private userPrefService: UserPreferenceService, private themeService: ThemeService) { }
 
   ngOnInit(): void {
     this.refreshDropdown();
-      this.repoService.getRepoListAndUserDetails().subscribe({
+    this.repoService.getRepoListAndUserDetails().subscribe({
         next:(data: {userAvatarUrl: string, repoList: IRepoDetails[] })=>{
           this.repoList = data.repoList;
           this.userAvatarUrl = data.userAvatarUrl;
@@ -88,7 +87,17 @@ export class HomeComponentComponent implements OnInit {
           if(error !== "suppressed")
             this.toastr.error("An error occured while fetching repository list", "Error");
         }
-    })
+    });
+    this.changeGraphColor(this.themeService.getThemeColorScheme());
+    this.themeService.getThemeObs().subscribe({
+      next: (value: ITheme)=>{
+        this.changeGraphColor(value);
+      },
+      error: (error)=>{
+        this.toastr.error("Error occured while changing theme", "Error");
+      }
+    });
+    
   }
 
   refreshDropdown(){
@@ -99,6 +108,10 @@ export class HomeComponentComponent implements OnInit {
 
   getUserName(): string {
     return this.authService.getAuthUserName();
+  }
+
+  getThemeName(): string {
+    return this.themeService.getThemeName();
   }
 
   getPrefTimeOffset() : string{
@@ -116,18 +129,9 @@ export class HomeComponentComponent implements OnInit {
 
         this.languagesList = data;
 
-        let label = this.languagesList?.map((x)=> x.language);
-        let labelData: any = this.languagesList?.map((x)=> x.bytesOfCode);
-        this.chartData = {
-          labels: label,
-          datasets: [{
-            label: 'Number of bytes used: ',
-            data: labelData,
-            hoverOffset: 4,
-            backgroundColor: this.backgroundColors,
-          }]
-
-        }
+        this.languageLabel = this.languagesList?.map((x)=> x.language);
+        this.languageData = this.languagesList?.map((x)=> x.bytesOfCode);
+        this.refreshChart();
 
         this.repoService.getRepoOtherDetails(repoObj.owner, repoObj.repoName).subscribe({
           next: (data: {createdDate: Date, updatedDate: Date, repoLink: string, repoName: string, owner: string})=> {
@@ -149,6 +153,27 @@ export class HomeComponentComponent implements OnInit {
           this.toastr.error("An error occured while fetching repository details", "Error");
       }
     });
+  }
+
+  changeGraphColor(color: ITheme){
+    this.chartOptions!.plugins!.legend!.labels!.color = color.graphLineColor;
+    this.backgroundColors = color.languageGraphColors;
+    this.refreshChart();
+  }
+
+  refreshChart(): void {
+    if(this.languageData !== undefined){
+      this.chartData = {
+        labels: this.languageLabel,
+        datasets: [{
+          label: 'Number of bytes used: ',
+          data: this.languageData,
+          hoverOffset: 4,
+          backgroundColor: this.backgroundColors,
+        }]
+  
+      }
+    }
   }
 
   logout(){
@@ -180,6 +205,16 @@ export class HomeComponentComponent implements OnInit {
   */
   @HostListener('window:resize', ['$event'])
     onResize(event: any) {
+  }
+
+  changeTheme(theme: any){
+    //this.themeService.setTheme(theme);
+    if(theme.checked){
+      this.themeService.setTheme("dark");
+    }
+    else{
+      this.themeService.setTheme("light");
+    }
   }
 
 

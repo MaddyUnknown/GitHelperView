@@ -3,6 +3,8 @@ import { ChartOptions, ChartData, ChartType  } from 'chart.js';
 import { DEFAULT_REPO_DETAILS, IRepoDetails, RepoService } from '../service/repo.service';
 import { NgxSpinnerService } from "ngx-spinner";
 import { ToastrService } from 'ngx-toastr';  
+import { reduce } from 'rxjs';
+import { ITheme, ThemeService } from '../service/theme.service';
 
 declare var $: any;
 
@@ -17,6 +19,8 @@ export class CommitGraphComponent implements OnInit {
 
   @Input()
   graphColor: string = '#1D8F6D';
+
+  spinnerColor: string = 'white';
   
   @Input() set repositoryDetails(value: IRepoDetails) {
     this._repositoryDetails = value;
@@ -35,46 +39,60 @@ export class CommitGraphComponent implements OnInit {
 
   barChartValues?: number[];
 
-
-
-
   barChartType: ChartType = 'line'
 
   barChartData?: ChartData<'line'> = undefined;
   
-  chartOptions: ChartOptions = {
+  chartOptions: any = {
     responsive:true,
     scales: {
       y: {
+        display: true,
         grid: {
           display: false
         },
         beginAtZero: true,
         ticks: {
-          stepSize: 1
+          stepSize: 1,
+          color: "black"
         },
         title: {
           display: true,
           text: 'Number of Commits',
+          color: "black"
         },
       },
       x: {
+        display: true,
         grid: {
           display: false
+        },
+        ticks: {
+          color: "black"
         },
         title: {
           display: true,
           text: 'Day of the Month',
+          color: "black"
         },
       },
     },
   };
 
-  constructor(private repoService: RepoService, private spinner: NgxSpinnerService, private toastr: ToastrService) { }
+  constructor(private repoService: RepoService, private spinner: NgxSpinnerService, private toastr: ToastrService, private themeService: ThemeService) { }
 
   ngOnInit(): void {
     //this.initAfterRepoSelection();
     this.refreshDropdown();
+    this.changeGraphColor(this.themeService.getThemeColorScheme());
+    this.themeService.getThemeObs().subscribe({
+      next: (value: ITheme)=>{
+        this.changeGraphColor(value);
+      },
+      error: (error)=>{
+        this.toastr.error("Error occured while changing theme", "Error");
+      }
+    });
     
   }
 
@@ -112,6 +130,17 @@ export class CommitGraphComponent implements OnInit {
     });
   }
 
+  changeGraphColor(color: ITheme){
+    this.chartOptions.scales!.y!.ticks!.color = color.graphLineColor;
+    this.chartOptions.scales!.x!.ticks!.color = color.graphLineColor;
+    this.chartOptions.scales!.y!.title!.color = color.graphLineColor;
+    this.chartOptions.scales!.x!.title!.color = color.graphLineColor;
+
+    this.spinnerColor = color.spinnerColor;
+    this.graphColor = color.commitGraphColor;
+    this.refreshChart();
+  }
+
 
 
   refreshGraph(index: string): void{
@@ -125,21 +154,7 @@ export class CommitGraphComponent implements OnInit {
         if(data.owner === this._repositoryDetails.owner && data.repoName === this._repositoryDetails.repoName && data.month === monhtYearPair.month && data.year === monhtYearPair.year){
           this.barChartLabels = data.result.map((value)=>value.day.toString());
           this.barChartValues = data.result.map((value)=>value.commits);
-          this.barChartData = {
-            labels: this.barChartLabels,
-            datasets: [
-              {
-                label: "No. of Commits",
-                data:  this.barChartValues,
-                borderColor: [this.graphColor],
-                borderWidth: 1.5,
-                hoverBackgroundColor: [this.graphColor],
-                pointBackgroundColor: [this.graphColor],
-                tension: 0.15,
-                fill: false
-              }
-            ]
-          };
+          this.refreshChart();
           this.spinner.hide("graph-spinner");
         }
         else{
@@ -154,6 +169,27 @@ export class CommitGraphComponent implements OnInit {
       complete: ()=>{
       }
     })
+  }
+
+  refreshChart(): void {
+    if(this.barChartValues !== undefined){
+      this.barChartData = {
+        labels: this.barChartLabels,
+        datasets: [
+          {
+            label: "No. of Commits",
+            data:  this.barChartValues,
+            borderColor: [this.graphColor],
+            borderWidth: 1.5,
+            hoverBackgroundColor: [this.graphColor],
+            pointBackgroundColor: [this.graphColor],
+            tension: 0.15,
+            fill: false
+          }
+        ]
+      };
+    }
+    
   }
 
   protected getStringFromPeriod(month: string, year: string): string{

@@ -2,6 +2,7 @@ import { Component, Input, OnInit } from '@angular/core';
 import { DEFAULT_REPO_DETAILS, IRepoDetails, RepoService, ICommitDetails } from '../service/repo.service';
 import { NgxSpinnerService } from "ngx-spinner";
 import { ToastrService } from 'ngx-toastr';  
+import { ITheme, ThemeService } from '../service/theme.service';
 
 
 @Component({
@@ -22,16 +23,23 @@ export class CommitDetailComponent implements OnInit {
 
   commitList : ICommitDetails[];
 
+  spinnerColor : string = "white";
 
   currentPageNumber: number = 0;
 
   hasMoreData : boolean = true;
 
-  constructor(private repoService: RepoService, private spinner: NgxSpinnerService, private toastr: ToastrService) {
+  constructor(private repoService: RepoService, private spinner: NgxSpinnerService, private toastr: ToastrService, private themeService: ThemeService) {
   
   }
 
   ngOnInit(): void {
+    this.spinnerColor = this.themeService.getThemeColorScheme().spinnerColor;
+    this.themeService.getThemeObs().subscribe({
+      next: (value: ITheme)=>{
+        this.spinnerColor = value.spinnerColor;
+      }
+    });
   }
     
   changeRepo(){

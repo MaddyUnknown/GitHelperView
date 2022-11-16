@@ -1,13 +1,23 @@
-.login-container{
-    background: url('../../assets/img/background-img.png');
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
+.login-container::before{
+    background-image: linear-gradient(var(--primary-color), var(--secondary-color));
+    mask-image: url('../../assets/img/background-img.png');
+    mask-size: cover;
+    mask-position: center;
+    mask-repeat: no-repeat;
+    position: absolute;
+    top:0px;
+    left:0px;
+    display: block;
+    content: "";
+    z-index: -1;
+    height: 100%;
+    width: 100%;
 }
+
 
 .pannel-card {
     max-width: 500px;
-    top: 60px;
+    margin-top: 3%;
     position: relative;
 }
 

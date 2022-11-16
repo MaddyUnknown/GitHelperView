@@ -23,6 +23,7 @@ import { Json2String, String2Json } from './custom-pipes/json.stringify.pipe';
 import { AuthenticationService } from './service/auth.service';
 import { AuthGuardService } from './service/auth.guard.service';
 import { UserPreferenceService } from './service/user.preference.service';
+import { ThemeService } from './service/theme.service';
 
 const appRoutes: Routes = [
   {path: 'login', component: LoginComponentComponent},
@@ -57,7 +58,7 @@ const appRoutes: Routes = [
     RouterModule.forRoot(appRoutes)
   ],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
-  providers: [RepoService, AuthenticationService, AuthGuardService, UserPreferenceService],
+  providers: [RepoService, AuthenticationService, AuthGuardService, UserPreferenceService, ThemeService],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

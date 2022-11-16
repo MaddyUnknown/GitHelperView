@@ -1,4 +1,4 @@
-<div class="container-fluid h-min-100-vh login-container d-flex flex-column p-2 p-md-4">
+<div class="container-fluid h-min-100-vh dashboard-container d-flex flex-column p-2 p-md-4 position-relative">
     <nav class="mb-2 d-flex flex-column flex-md-row align-items-center justify-content-between">
         <h1 id="logo" class="font-weight-normal"><span class="font-weight-bold custom-color-primary">Git</span>Helper</h1>
         <span id="profile-component" class="">
@@ -6,8 +6,12 @@
                 <button class="btn dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                     <img class="avatarPic" src={{userAvatarUrl}}>
                 </button>
-                <div class="dropdown-menu dropdown-menu-right" aria-labelledby="dropdownMenuButton">
-                  <button class="dropdown-item custom-color-secondary" (click)="logout()">Log Out <i class="pl-2 fa-solid fa-right-from-bracket"></i></button> <!-- to decide what to do-->
+                <div class="profile-dropdown dropdown-menu dropdown-menu-right" aria-labelledby="dropdownMenuButton">
+                    <div class="custom-control custom-switch" style="left:20px;">
+                        <input type="checkbox" class="custom-control-input"  id="customSwitches" (change)="changeTheme($event.currentTarget)" [checked]="(getThemeName()=='dark')?true:false">
+                        <label class="custom-control-label custom-color-primary-text" for="customSwitches">Change Theme</label>
+                    </div>
+                    <button class="dropdown-item" (click)="logout()"><i class="pr-3 fa-solid fa-right-from-bracket"></i>Log Out</button> <!-- to decide what to do-->
                 </div>
               </div>
         </span>
@@ -61,18 +65,18 @@
                     <div class="language-view-container">
                         <div class="laungage-used-view custom-panel h-100 p-4 ml-sm-3">
                             <div class="h5 font-weight-bold mb-4 custom-color-primary">Languages Used</div>
-                            <div class="custom-color-dark-grey position-relative">
+                            <div class="position-relative">
                                 <div class="d-block">
                                     <canvas style="max-height: 200px;" 
                                     baseChart
                                     
                                     [data]="chartData"
-                                    [type]="chartType">
+                                    [type]="chartType"
                                     [options]="chartOptions"
                                     >
                                     </canvas>
                                 </div>
-                                <div *ngIf="this.languagesList === undefined || this.languagesList.length === 0" class="text-center position-absolute w-100" style="top: 0">&nbsp;<small class="custom-color-dark-grey">No language related information found</small></div>
+                                <div *ngIf="this.languagesList === undefined || this.languagesList.length === 0" class="text-center position-absolute w-100" style="top: 0">&nbsp;<small class="custom-color-secondary-text">No language related information found</small></div>
                             </div>
                         </div>
                         
@@ -85,6 +89,6 @@
         </div>
     </main>
     <footer class="mt-2">
-        <span class="custom-color-secondary-text font-weight-bold trademark"><i class="fa-regular fa-copyright"></i> NRI Fintech, 2022</span>
+        <span class="font-weight-bold trademark"><i class="fa-regular fa-copyright"></i> NRI Fintech, 2022</span>
     </footer>
 </div>

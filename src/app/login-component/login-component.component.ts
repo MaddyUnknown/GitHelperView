@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { AuthenticationService } from '../service/auth.service';
 import { ToastrService } from 'ngx-toastr';  
 import { Route, Router } from '@angular/router';
+import { ThemeService } from '../service/theme.service';
 
 declare var $: any;
 
