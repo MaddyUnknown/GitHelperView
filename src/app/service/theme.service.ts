@@ -6,7 +6,7 @@ export interface ITheme{
     commitGraphColor: string;
     languageGraphColors: string[];
     spinnerColor: string;
-    cssClass: string;
+    cssFilePath: string;
 }
 
 @Injectable()
@@ -17,14 +17,14 @@ export class ThemeService{
             commitGraphColor: "#1D8F6D",
             languageGraphColors: ['#1D8F6D', '#385855', '#CFC69B', '#90D7FF', '#896978', '#F45B69'],
             spinnerColor: "#1D8F6D",
-            cssClass: "light-theme"
+            cssFilePath: "assets/theme/css/light.css"
         },
         'dark': {
             graphLineColor: "#D2D2D2",
             commitGraphColor: "#1D8F6D",
             languageGraphColors: ['#1D8F6D', '#385855', '#CFC69B', '#90D7FF', '#896978', '#F45B69'],
             spinnerColor: "#1D8F6D",
-            cssClass: "dark-theme"
+            cssFilePath: "assets/theme/css/dark.css"
         }
     }
 
@@ -40,9 +40,8 @@ export class ThemeService{
         else{
             this.themeName = 'light';
         }
-        setTimeout(()=>{
-            document.getElementsByTagName("body")[0].classList.add(ThemeService.themeList[this.themeName].cssClass);
-        })
+        this.loadThemeCss(ThemeService.themeList[this.themeName].cssFilePath);
+
     }
 
     getThemeObs(): Subject<ITheme>{
@@ -54,14 +53,31 @@ export class ThemeService{
     }
 
     setTheme(theme: string) {
-        document.getElementsByTagName("body")[0].classList.remove(ThemeService.themeList[this.themeName].cssClass);
         this.themeName = theme;
         localStorage.setItem('theme', this.themeName);
-        document.getElementsByTagName("body")[0].classList.add(ThemeService.themeList[this.themeName].cssClass);
+        this.loadThemeCss(ThemeService.themeList[this.themeName].cssFilePath);
         this.themeObs.next(ThemeService.themeList[this.themeName]);
     }
 
     getThemeName(): string {
         return this.themeName;
+    }
+
+    private loadThemeCss(path: string) {
+        const head = document.getElementsByTagName('head')[0];
+
+        let themeLink = document.getElementById(
+                        'client-theme'
+                        ) as HTMLLinkElement;
+        if (themeLink) {
+            themeLink.href = path;
+        } else {
+            const style = document.createElement('link');
+            style.id = 'client-theme';
+            style.rel = 'stylesheet';
+            style.href = `${path}`;
+
+            head.appendChild(style);
+        }
     }
 }
