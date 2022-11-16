@@ -25,7 +25,17 @@
             "styles": [
               "node_modules/ngx-spinner/animations/ball-pulse-sync.css",
               "src/styles.css",
-              "node_modules/ngx-toastr/toastr.css"  
+              "node_modules/ngx-toastr/toastr.css",
+              {
+                "input": "src/assets/theme/css/light.css",
+                "bundleName": "light",
+                "inject": false
+              },
+              {
+                "input": "src/assets/theme/css/dark.css",
+                "bundleName": "dark",
+                "inject": false
+              }
             ],
             "scripts": [
               "node_modules/chart.js/dist/Chart.min.js"
@@ -102,7 +112,18 @@
               "src/assets"
             ],
             "styles": [
-              "src/styles.css"
+              
+              "src/styles.css",
+              {
+                "input": "src/assets/theme/css/light.css",
+                "bundleName": "light",
+                "inject": false
+              },
+              {
+                "input": "src/assets/theme/css/dark.css",
+                "bundleName": "dark",
+                "inject": false
+              }
             ],
             "scripts": []
           }

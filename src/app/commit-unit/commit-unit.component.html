@@ -4,8 +4,8 @@
         <i class="fa-solid fa-circle custom-color-primary"></i>
     </div>
     <div class="ml-4 flex-fill pr-5 w-100">
-        <p class="card-text my-0"><small class="text-muted">{{commitDateTime | date:'MMM dd, yyyy HH:mm' : getPrefTimeOffset()}}</small></p>
+        <p class="card-text my-0"><small class="custom-color-secondary-text">{{commitDateTime | date:'MMM dd, yyyy HH:mm' : getPrefTimeOffset()}}</small></p>
         <p class="card-text my-0 w-100" style="word-wrap: break-word;">{{commitMessage}}</p>
-        <p class="card-text my-0"><small class="text-muted">{{commitAuthorName}}</small></p>
+        <p class="card-text my-0"><small class="custom-color-secondary-text">{{commitAuthorName}}</small></p>
     </div>
 </div>
