@@ -1,3 +1,4 @@
+<pop-up></pop-up>
 <div class="container-fluid h-min-100-vh dashboard-container d-flex flex-column p-2 p-md-4 position-relative">
     <nav class="mb-2 d-flex flex-column flex-md-row align-items-center justify-content-between">
         <h1 id="logo" class="font-weight-normal"><span class="font-weight-bold custom-color-primary">Git</span>Helper</h1>
@@ -18,13 +19,21 @@
     </nav>
      <main class="d-flex flex-column align-items-center flex-fill">
         <div class="row w-100 mb-2">
-            <div class="col-12 col-md-5 px-md-0 align-middle h4 font-weight-semibold custom-color-primary">Welcome, {{getUserName()}}</div>
+            <div class="col-12 col-md-5 px-md-0 align-middle h4 font-weight-semibold custom-color-primary">Welcome, {{userName}}</div>
             <div class="col-12 col-md-7">
                 <div class="row">
                     <div class="col-12 col-md-6 p-0 offset-md-6">
                         <select #repoDropDown class="repository-input selectpicker w-100 px-3" name="repository-input" [disabled]="repoList==null || repoList.length==0" [(ngModel)]="selectedRepositoryValue" (change)="initOnRepoSelection($any($event.target).value)">
-                            <option value='-1' disabled selected>Select a Repository Name</option>
-                            <option *ngFor="let repo of repoList;index as i" [value]="i" [innerText]="repo.repoName"></option>
+                            <!-- <option value='-1' disabled selected>Select a Repository Name</option> -->
+                            <option *ngFor="let repo of repoList;index as i" [value]="i">
+                                <span>
+                                    <!-- <span class="custom-color-secondary-text">{{repo.repoOwner}}/</span> -->
+                                    {{repo.repoName}}
+                                </span>
+                                <span *ngIf="repo.isFavourite === true">
+                                    &#9733;
+                                </span>
+                            </option>
                         </select>
                     </div>
                 </div>
@@ -40,7 +49,12 @@
             <div #repoDetailsView class="size-view col-12 col-md-7 order-1 order-md-2 d-flex flex-column flex-fill mb-4 mb-md-0" style="height: 100%">
                 <div class="info-panel d-flex flex-column flex-sm-row flex-fill mb-3">
                     <div class="repo-details d-flex flex-column flex-fill mb-sm-0 custom-panel p-4 mb-3 mb-sm-0 mr-sm-2">
-                        <div class="h5 font-weight-bold mb-4 custom-color-primary">Repository Details</div>
+                        <div class="h5 font-weight-bold mb-4 custom-color-primary">Repository Details 
+                            <span class="custom-color-favourite favourite-button" (click)="favouriteChangeHandler()">
+                                <i *ngIf="repoIsFavourite; else notFavourite" class="fa-solid fa-star"></i>
+                                <ng-template #notFavourite><i class="fa-regular fa-star"></i></ng-template>
+                            </span>
+                        </div>
                         <div class="d-flex flex-column align-items-center">
                             <div class="d-flex flex-column align-items-center justify-content-center py-1">
                                 <span class="custom-color-primary font-weight-medium">Repository link</span>

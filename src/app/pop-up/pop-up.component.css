@@ -1,0 +1,7 @@
+.prompt-container {
+    position: relative;
+    min-height: 160px;
+    max-width: 500px;
+    border-radius: 15px;
+    top: 20px;
+}

@@ -24,6 +24,8 @@ import { AuthenticationService } from './service/auth.service';
 import { AuthGuardService } from './service/auth.guard.service';
 import { UserPreferenceService } from './service/user.preference.service';
 import { ThemeService } from './service/theme.service';
+import { PopUpComponent } from './pop-up/pop-up.component';
+import { RepoDbService } from './service/repoDb.service';
 
 const appRoutes: Routes = [
   {path: 'login', component: LoginComponentComponent},
@@ -42,7 +44,8 @@ const appRoutes: Routes = [
     String2Date,
     Json2String,
     String2Json,
-    CommitGraphComponent
+    CommitGraphComponent,
+    PopUpComponent
   ],
   imports: [
     BrowserModule,
@@ -58,7 +61,7 @@ const appRoutes: Routes = [
     RouterModule.forRoot(appRoutes)
   ],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
-  providers: [RepoService, AuthenticationService, AuthGuardService, UserPreferenceService, ThemeService],
+  providers: [RepoService, RepoDbService, AuthenticationService, AuthGuardService, UserPreferenceService, ThemeService],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

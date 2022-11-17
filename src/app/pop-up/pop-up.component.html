@@ -1,0 +1,10 @@
+<div #popUp class="position-fixed d-none h-100 w-100 align-items-center flex-column p-5" style="z-index: 2;">
+    <div class="prompt-container custom-panel p-3 p-md-4 w-100">
+        <h1 class="h5">{{heading}}</h1>
+        <p>{{body}}</p>
+        <div class="text-right">
+            <button class="btn custom-btn-primary" (click)="success()">Yes</button>
+            <button class="btn custom-btn-primary ml-4" (click)="failure()">No</button>
+        </div>
+    </div>
+</div>

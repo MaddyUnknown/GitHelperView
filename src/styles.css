@@ -50,6 +50,10 @@ a:focus{
     color: var(--primary-color);
 }
 
+.custom-color-favourite{
+    color: var(--favourite-color);
+}
+
 .custom-color-secondary{
     color: var(--secondary-color);
 }

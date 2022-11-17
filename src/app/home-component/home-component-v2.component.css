@@ -34,7 +34,11 @@
 }
 
 .dropdown-toggle::after {
-    color: var(--primary-text-color);
+    color: var(--primary-text-color); 
+}
+
+.favourite-button {
+    cursor: pointer;
 }
 
 @media (min-width: 576px) { 

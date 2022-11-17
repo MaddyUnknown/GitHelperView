@@ -9,6 +9,9 @@ import { CommitGraphComponent } from '../commit-graph/commit-graph.component';
 import { UserPreferenceService } from '../service/user.preference.service';
 import { ITheme, ThemeService } from '../service/theme.service';
 import { reduce } from 'rxjs';
+import { PopUpComponent } from '../pop-up/pop-up.component';
+import { ThisReceiver } from '@angular/compiler';
+import { RepoDbService } from '../service/repoDb.service';
 
 declare var $: any;
 
@@ -26,11 +29,17 @@ export class HomeComponentComponent implements OnInit {
   @ViewChild(CommitDetailComponent) commitDetailsComp: CommitDetailComponent;
   @ViewChild(CommitGraphComponent)  commitGraphComp: CommitGraphComponent;
 
+  @ViewChild(PopUpComponent) popUp: PopUpComponent;
+
   selectedRepositoryValue: number = -1;
 
   repoList: IRepoDetails[];
 
   userAvatarUrl?: string;
+
+  userName: string;
+
+  userId: number;
 
   //Repo Details
   languagesList?: ILanguageDetails[];
@@ -45,7 +54,9 @@ export class HomeComponentComponent implements OnInit {
 
   repoUrl: string = "";
 
-  //Chart Variable Declarations
+  repoIsFavourite: boolean = false;
+
+  //Repository Language Chart Variable Declarations
   chartType : ChartType = 'pie';
   
   chartData?: ChartData<ChartType>;
@@ -68,24 +79,30 @@ export class HomeComponentComponent implements OnInit {
     }
   };
 
-  constructor(private repoService : RepoService, private authService: AuthenticationService, private router : Router, private toastr: ToastrService, private userPrefService: UserPreferenceService, private themeService: ThemeService) { }
+  constructor(private repoService : RepoService, private repoDbService : RepoDbService, private authService: AuthenticationService, private router : Router, private toastr: ToastrService, private userPrefService: UserPreferenceService, private themeService: ThemeService) { }
 
   ngOnInit(): void {
-    this.refreshDropdown();
+    //this.refreshDropdown();
     this.repoService.getRepoListAndUserDetails().subscribe({
-        next:(data: {userAvatarUrl: string, repoList: IRepoDetails[] })=>{
+        next:(data: {userId: number, userName: string, userAvatarUrl: string, repoList: IRepoDetails[] })=>{
           this.repoList = data.repoList;
           this.userAvatarUrl = data.userAvatarUrl;
+          this.userId = data.userId;
+          this.userName = data.userName;
           this.refreshDropdown();
           if(this.repoList.length !== 0){
+            this.reorderRepoList();
             this.selectedRepositoryValue = 0;
-            this.refreshDropdown();
             this.initOnRepoSelection('0');
+            this.refreshDropdown();
           }
         },
         error: (error)=>{
           if(error !== "suppressed")
             this.toastr.error("An error occured while fetching repository list", "Error");
+        },
+        complete: ()=>{
+          this.refreshDropdown();
         }
     });
     this.changeGraphColor(this.themeService.getThemeColorScheme());
@@ -98,61 +115,6 @@ export class HomeComponentComponent implements OnInit {
       }
     });
     
-  }
-
-  refreshDropdown(){
-    setTimeout(() => {
-      $(this.repoDropDown.nativeElement).selectpicker('refresh');
-    });
-  }
-
-  getUserName(): string {
-    return this.authService.getAuthUserName();
-  }
-
-  getThemeName(): string {
-    return this.themeService.getThemeName();
-  }
-
-  getPrefTimeOffset() : string{
-    return this.userPrefService.getPreferedTimeOffset();
-  }
-
-  initOnRepoSelection(value: string){
-    let index: number = parseInt(value);
-    let repoObj : IRepoDetails = this.repoList[index];
-    this.repoService.getRepoLanguages(repoObj.owner, repoObj.repoName).subscribe({
-      next: (data: ILanguageDetails[])=> {
-        //Call child component change only when Repo details were fetched correctly
-         this.commitDetailsComp.repositoryDetails = repoObj;
-         this.commitGraphComp.repositoryDetails = repoObj;
-
-        this.languagesList = data;
-
-        this.languageLabel = this.languagesList?.map((x)=> x.language);
-        this.languageData = this.languagesList?.map((x)=> x.bytesOfCode);
-        this.refreshChart();
-
-        this.repoService.getRepoOtherDetails(repoObj.owner, repoObj.repoName).subscribe({
-          next: (data: {createdDate: Date, updatedDate: Date, repoLink: string, repoName: string, owner: string})=> {
-            this.repoCreationDate = data.createdDate;
-            this.repoUpdateDate = data.updatedDate;
-            this.repoUrl = data.repoLink;
-            this.repoName = data.repoName;
-            this.repoOwner = data.owner;
-          },
-          error: (error)=>{
-            if(error !== "suppressed")
-              this.toastr.error("An error occured while fetching repository details", "Error");
-          }
-        });
-
-      },
-      error: (error)=>{
-        if(error !== "suppressed")
-          this.toastr.error("An error occured while fetching repository details", "Error");
-      }
-    });
   }
 
   changeGraphColor(color: ITheme){
@@ -174,6 +136,95 @@ export class HomeComponentComponent implements OnInit {
   
       }
     }
+  }
+
+  refreshDropdown(){
+    setTimeout(() => {
+      $(this.repoDropDown.nativeElement).selectpicker('refresh');
+    });
+  }
+
+  reorderRepoList(){
+    let selectedRepository : IRepoDetails;
+    if(this.selectedRepositoryValue !== -1)
+      selectedRepository = this.repoList[this.selectedRepositoryValue];
+    this.repoList.sort(function comparator(a: IRepoDetails,b: IRepoDetails): number {
+      console.log(a, b);
+      if(a.isFavourite! > b.isFavourite!){
+        return -1;
+      }
+      else if(a.isFavourite! < b.isFavourite!){
+        return 1;
+      }
+      else if(a.repoName.toLowerCase() < b.repoName.toLowerCase()) {
+        return -1;
+      }
+      else if(a.repoName.toLowerCase() > b.repoName.toLowerCase()) {
+        return 1;
+      }
+      else if(a.repoOwner.toLowerCase() < b.repoOwner.toLowerCase()){
+        return -1;
+      }
+      else if(a.repoOwner.toLowerCase() > b.repoOwner.toLowerCase()){
+        return 1;
+      }
+      return 0;
+    });
+    if(this.selectedRepositoryValue !== -1)
+      this.selectedRepositoryValue = this.repoList.findIndex((obj)=>(obj.repoName === selectedRepository.repoName && obj.repoOwner === selectedRepository.repoOwner));
+    console.log(this.selectedRepositoryValue);
+
+  }
+
+  getUserName(): string {
+    return this.authService.getAuthUserName();
+  }
+
+  getThemeName(): string {
+    return this.themeService.getThemeName();
+  }
+
+  getPrefTimeOffset() : string{
+    return this.userPrefService.getPreferedTimeOffset();
+  }
+  
+
+  initOnRepoSelection(value: string){
+    let index: number = parseInt(value);
+    let repoObj : IRepoDetails = this.repoList[index];
+    this.repoIsFavourite = repoObj.isFavourite!;
+    this.repoService.getRepoLanguages(repoObj.repoOwner, repoObj.repoName).subscribe({
+      next: (data: ILanguageDetails[])=> {
+        //Call child component change only when Repo details were fetched correctly
+         this.commitDetailsComp.repositoryDetails = repoObj;
+         this.commitGraphComp.repositoryDetails = repoObj;
+
+        this.languagesList = data;
+
+        this.languageLabel = this.languagesList?.map((x)=> x.language);
+        this.languageData = this.languagesList?.map((x)=> x.bytesOfCode);
+        this.refreshChart();
+
+        this.repoService.getRepoOtherDetails(repoObj.repoOwner, repoObj.repoName).subscribe({
+          next: (data: {createdDate: Date, updatedDate: Date, repoLink: string, repoName: string, owner: string})=> {
+            this.repoCreationDate = data.createdDate;
+            this.repoUpdateDate = data.updatedDate;
+            this.repoUrl = data.repoLink;
+            this.repoName = data.repoName;
+            this.repoOwner = data.owner;
+          },
+          error: (error)=>{
+            if(error !== "suppressed")
+              this.toastr.error("An error occured while fetching repository details", "Error");
+          }
+        });
+
+      },
+      error: (error)=>{
+        if(error !== "suppressed")
+          this.toastr.error("An error occured while fetching repository details", "Error");
+      }
+    });
   }
 
   logout(){
@@ -215,6 +266,89 @@ export class HomeComponentComponent implements OnInit {
     else{
       this.themeService.setTheme("light");
     }
+  }
+
+  // FAVOURITE FUNCTIONALITIES
+  favouriteChangeHandler() {
+    if(this.repoIsFavourite === true) {
+      this.unfavourite();
+    }
+    else{
+      this.changeFavourite();
+    }
+  }
+
+  getFavouriteRepo(): IRepoDetails | undefined{
+    let favouriteRepo = this.repoList.find((obj)=>obj.isFavourite === true);
+    if(favouriteRepo !== undefined){
+      return favouriteRepo;
+    }
+    else{
+      return undefined;
+    }
+  }
+
+  async changeFavourite() {
+    let newFavouriteRepo = this.repoList[this.selectedRepositoryValue];
+    let oldFavouriteRepo = this.getFavouriteRepo();
+    let heading = "Confirmation";
+    let body = `Are you sure you will like to set ${newFavouriteRepo.repoName} as the new favourite repository`;
+    if(oldFavouriteRepo === undefined){
+      body += " ?";
+    }
+    else{
+      body += ` instead of ${oldFavouriteRepo.repoName}?`;
+    }
+
+    if((await this.popUp.showPrompt(heading, body)) === true){
+      this.repoDbService.setFavourite(this.userId, newFavouriteRepo.repoId!).subscribe({
+        next: (data: {status: string, message: string})=>{
+          if(data.status === "Success"){
+            if(oldFavouriteRepo !== undefined)
+              oldFavouriteRepo!.isFavourite = false;
+            this.repoIsFavourite = true;
+            this.repoList.find((obj)=>obj.repoName === newFavouriteRepo.repoName)!.isFavourite = true;
+            this.reorderRepoList();
+            this.refreshDropdown();
+          }
+          else {
+            this.toastr.error(data.message, data.status);
+          }
+        },
+        error: (error)=>{
+          if(error !== "suppressed")
+            this.toastr.error("An error occured while removing favourite repository", "Error");
+        }
+      });
+    }
+
+  }
+
+  async unfavourite() {
+    let favouriteRepo = this.repoList[this.selectedRepositoryValue];
+    let heading = "Confirmation";
+    let body = `Are you sure you will like to remove ${favouriteRepo.repoName} as the favourite repository ?`;
+
+    if((await this.popUp.showPrompt(heading, body)) === true) {
+      this.repoDbService.removeFavourite(this.userId, favouriteRepo.repoId!).subscribe({
+        next: (data: {status: string, message: string})=>{
+          if(data.status === "Success"){
+            this.repoIsFavourite = false;
+            this.repoList.find((obj)=>obj.repoName === favouriteRepo.repoName)!.isFavourite = false;
+            this.reorderRepoList();
+            this.refreshDropdown();
+          }
+          else {
+            this.toastr.error(data.message, data.status);
+          }
+        },
+        error: (error)=>{
+          if(error !== "suppressed")
+            this.toastr.error("An error occured while removing favourite repository", "Error");
+        }
+      });
+      
+    };
   }
 
 

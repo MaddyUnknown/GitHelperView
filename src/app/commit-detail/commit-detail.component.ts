@@ -43,7 +43,7 @@ export class CommitDetailComponent implements OnInit {
   }
     
   changeRepo(){
-    if(this._repositoryDetails != null && this._repositoryDetails.owner!=''){
+    if(this._repositoryDetails != null && this._repositoryDetails.repoOwner!=''){
       this.initAfterRepoSelection();
     }
   }
@@ -67,16 +67,16 @@ export class CommitDetailComponent implements OnInit {
     // console.log("scrolled triggered");
     // console.log(this.hasMoreData, this.currentPageNumber);
     if(this.hasMoreData){
-      // console.log(`Data sent: Repo Owner: ${this.repositoryDetails.owner}, RepoName: ${this.repositoryDetails.repoName}, CurretnPageNum: ${this.currentPageNumber}, Num in page: ${this.entryPerPage}}`);
+      // console.log(`Data sent: Repo Owner: ${this.repositoryDetails.repoOwner}, RepoName: ${this.repositoryDetails.repoName}, CurretnPageNum: ${this.currentPageNumber}, Num in page: ${this.entryPerPage}}`);
       this.spinner.show("commit-spinner");
-      this.repoService.getRepoCommitHistory(this._repositoryDetails.owner, this._repositoryDetails.repoName, this.currentPageNumber, this.entryPerPage).subscribe({
+      this.repoService.getRepoCommitHistory(this._repositoryDetails.repoOwner, this._repositoryDetails.repoName, this.currentPageNumber, this.entryPerPage).subscribe({
         next: (data: {commitList: ICommitDetails[], repoName: string, pageNumber: number, pageLength: number, owner: string})=>{
           // console.log("Data received: ", data);
           // console.log(data.pageNumber === this.currentPageNumber);
           // console.log(data.pageLength === this.entryPerPage);
           // console.log(data.repoName === this.repositoryDetails.repoName);
-          // console.log(data.owner === this.repositoryDetails.owner);
-          if(data.pageNumber === this.currentPageNumber && data.pageLength === this.entryPerPage && data.repoName === this._repositoryDetails.repoName && data.owner === this._repositoryDetails.owner){
+          // console.log(data.owner === this.repositoryDetails.repoOwner);
+          if(data.pageNumber === this.currentPageNumber && data.pageLength === this.entryPerPage && data.repoName === this._repositoryDetails.repoName && data.owner === this._repositoryDetails.repoOwner){
             let commitListData: ICommitDetails[] = data.commitList.map((value: ICommitDetails, index: number)=>{
               if(this.commitList.length === 0 && data.commitList.length === 1){
                 value.commitPosition = "";
