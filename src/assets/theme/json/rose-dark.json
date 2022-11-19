@@ -1,0 +1,7 @@
+{
+    "graphLineColor": "#D2D2D2",
+    "commitGraphColor": "#E4AFB0",
+    "languageGraphColors": ["#E4AFB0", "#9A7787", "#FED7BF", "#5CA4A9", "#627264", "#cfc69b"],
+    "spinnerColor": "#E4AFB0",
+    "cssFilePath": "assets/theme/css/rose-dark.css"
+}

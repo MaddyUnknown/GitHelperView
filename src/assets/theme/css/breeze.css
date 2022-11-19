@@ -1,0 +1,23 @@
+:root {
+    --background-color: #E7FBFF;
+
+    --primary-color : #47959E;
+    --secondary-color: #022249;
+    --tertiary-color: #F07C41;
+
+    --glass-panel-color: #E7FBFFf2;
+    --panel-shadow-color: #00000040;
+    
+    --pop-up-color: #E7FBFFf2;
+    --pop-up-text-color: #000;
+    --pop-up-border-color: #02224980;
+    
+    --primary-text-color: #000;
+    --secondary-text-color: #6A6A6A;
+    --tertiary-text-color: #fff;
+
+    --error-message-color: #dc3545;
+    --icon-color: #6a6a6a;
+
+    --favourite-color: #FED84F;
+}

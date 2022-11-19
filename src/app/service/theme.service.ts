@@ -1,5 +1,9 @@
-import { Injectable } from "@angular/core";
+import { HttpClient } from "@angular/common/http";
+import { Injectable, OnInit } from "@angular/core";
+import { ToastrService } from "ngx-toastr";
 import { Subject } from "rxjs";
+
+import repoList from "../themeList.json";
 
 export interface ITheme{
     graphLineColor: string;
@@ -11,37 +15,48 @@ export interface ITheme{
 
 @Injectable()
 export class ThemeService{
-    private static themeList : {[key: string]: ITheme} = {
-        'light': {
-            graphLineColor: "#6A6A6A",
-            commitGraphColor: "#1D8F6D",
-            languageGraphColors: ['#1D8F6D', '#385855', '#CFC69B', '#90D7FF', '#896978', '#F45B69'],
-            spinnerColor: "#1D8F6D",
-            cssFilePath: "assets/theme/css/light.css"
-        },
-        'dark': {
-            graphLineColor: "#D2D2D2",
-            commitGraphColor: "#1D8F6D",
-            languageGraphColors: ['#1D8F6D', '#385855', '#CFC69B', '#90D7FF', '#896978', '#F45B69'],
-            spinnerColor: "#1D8F6D",
-            cssFilePath: "assets/theme/css/dark.css"
-        }
-    }
+    private static DEFAULT_THEME = 'Classic';
+
+    private static themeList: {themeName: string, themePath: string}[] = repoList;
+
+    private currentTheme: ITheme = {
+        graphLineColor: "#6A6A6A",
+        commitGraphColor: "#1D8F6D",
+        languageGraphColors: ["#1D8F6D", "#385855", "#CFC69B", "#90D7FF", "#896978", "#F45B69"],
+        spinnerColor: "#1D8F6D",
+        cssFilePath: "assets/theme/css/classic.css"
+    };
+
+    private themeName: string = ThemeService.DEFAULT_THEME;
 
     private themeObs: Subject<ITheme> = new Subject();
 
-    private themeName: string;
-
-    constructor(){
-        let theme = localStorage.getItem('theme') || '';
-        if(Object.keys(ThemeService.themeList).includes(theme)){
-            this.themeName = theme;
+    constructor(private httpService: HttpClient, private toastr: ToastrService){
+        let themeName = localStorage.getItem('theme') || '';
+        if(ThemeService.themeList.find((obj)=>obj.themeName === themeName) !== undefined){
+            this.loadCurrentTheme(themeName);
         }
         else{
-            this.themeName = 'light';
+            this.loadCurrentTheme(ThemeService.DEFAULT_THEME);
         }
-        this.loadThemeCss(ThemeService.themeList[this.themeName].cssFilePath);
+    }
 
+    loadCurrentTheme(themeName: string) {
+        this.themeName = themeName;
+        let themePath = ThemeService.themeList.find((obj)=>obj.themeName === themeName)?.themePath;
+        if(themePath !== undefined)
+            this.httpService.get<ITheme>(themePath).subscribe({
+                next: (data: ITheme)=>{
+                    localStorage.setItem('theme', this.themeName);
+                    this.currentTheme = data;
+                    this.loadThemeCss(this.currentTheme.cssFilePath);
+                    this.themeObs.next(this.currentTheme);
+                },
+                error: (error) => {
+                    this.toastr.error("Error occured while fetching theme details", "Error");
+                }
+                
+            });
     }
 
     getThemeObs(): Subject<ITheme>{
@@ -49,14 +64,26 @@ export class ThemeService{
     }
 
     getThemeColorScheme(): ITheme{
-        return ThemeService.themeList[this.themeName];
+        return this.currentTheme;
     }
 
-    setTheme(theme: string) {
-        this.themeName = theme;
-        localStorage.setItem('theme', this.themeName);
-        this.loadThemeCss(ThemeService.themeList[this.themeName].cssFilePath);
-        this.themeObs.next(ThemeService.themeList[this.themeName]);
+    setTheme(themeName: string) {
+        if(ThemeService.themeList.find((obj)=>obj.themeName === themeName) !== undefined){
+            this.loadCurrentTheme(themeName);
+        }
+    }
+
+    setNextTheme() {
+        let nextIndex = (ThemeService.themeList.findIndex((obj)=>obj.themeName === this.themeName) + 1) % ThemeService.themeList.length;
+        this.setTheme(ThemeService.themeList[nextIndex].themeName);
+        
+    }
+
+    setPreviousTheme() {
+        let previousIndex = (ThemeService.themeList.findIndex((obj)=>obj.themeName === this.themeName) - 1);
+        if(previousIndex === -1) previousIndex = ThemeService.themeList.length -1;
+        this.setTheme(ThemeService.themeList[previousIndex].themeName);
+        
     }
 
     getThemeName(): string {

@@ -148,8 +148,7 @@ export class HomeComponentComponent implements OnInit {
     let selectedRepository : IRepoDetails;
     if(this.selectedRepositoryValue !== -1)
       selectedRepository = this.repoList[this.selectedRepositoryValue];
-    this.repoList.sort(function comparator(a: IRepoDetails,b: IRepoDetails): number {
-      console.log(a, b);
+    this.repoList.sort(function comparator(a: IRepoDetails,b: IRepoDetails): number { 
       if(a.isFavourite! > b.isFavourite!){
         return -1;
       }
@@ -172,7 +171,6 @@ export class HomeComponentComponent implements OnInit {
     });
     if(this.selectedRepositoryValue !== -1)
       this.selectedRepositoryValue = this.repoList.findIndex((obj)=>(obj.repoName === selectedRepository.repoName && obj.repoOwner === selectedRepository.repoOwner));
-    console.log(this.selectedRepositoryValue);
 
   }
 
@@ -261,11 +259,19 @@ export class HomeComponentComponent implements OnInit {
   changeTheme(theme: any){
     //this.themeService.setTheme(theme);
     if(theme.checked){
-      this.themeService.setTheme("dark");
+      this.themeService.setTheme("Dark");
     }
     else{
-      this.themeService.setTheme("light");
+      this.themeService.setTheme("Light");
     }
+  }
+
+  changeToNextTheme() {
+    this.themeService.setNextTheme();
+  }
+
+  changeToPreviousTheme() {
+    this.themeService.setPreviousTheme();
   }
 
   // FAVOURITE FUNCTIONALITIES

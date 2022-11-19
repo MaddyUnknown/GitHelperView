@@ -1,0 +1,18 @@
+[
+    {
+        "themeName": "Classic",
+        "themePath": "../assets/theme/json/classic.json"
+    },
+    {
+        "themeName": "Classic (Dark)",
+        "themePath": "../assets/theme/json/classic-dark.json"
+    },
+    {
+        "themeName": "Rose (Dark)",
+        "themePath": "../assets/theme/json/rose-dark.json"
+    },
+    {
+        "themeName": "Breeze",
+        "themePath": "../assets/theme/json/breeze.json"
+    }
+]

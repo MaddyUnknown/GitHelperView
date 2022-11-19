@@ -7,12 +7,17 @@
                 <button class="btn dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                     <img class="avatarPic" src={{userAvatarUrl}}>
                 </button>
-                <div class="profile-dropdown dropdown-menu dropdown-menu-right" aria-labelledby="dropdownMenuButton">
-                    <div class="custom-control custom-switch" style="left:20px;">
-                        <input type="checkbox" class="custom-control-input"  id="customSwitches" (change)="changeTheme($event.currentTarget)" [checked]="(getThemeName()=='dark')?true:false">
+                <div class="profile-dropdown dropdown-menu dropdown-menu-right text-center" style="color: var(--custom-color-primary-text)" aria-labelledby="dropdownMenuButton">
+                    <!-- <div class="custom-control custom-switch" style="left:20px;">
+                        <input type="checkbox" class="custom-control-input"  id="customSwitches" (change)="changeTheme($event.currentTarget)" [checked]="(getThemeName()=='Dark')?true:false">
                         <label class="custom-control-label custom-color-primary-text" for="customSwitches">Change Theme</label>
-                    </div>
-                    <button class="dropdown-item" (click)="logout()"><i class="pr-3 fa-solid fa-right-from-bracket"></i>Log Out</button> <!-- to decide what to do-->
+                    </div> -->
+                    <form class=" theme-change-control dropdown-item d-flex align-items-center">
+                        <button class="btn custom-color-secondary-text" (click)="changeToPreviousTheme()"><i class="fa-solid fa-caret-left"></i></button>
+                        <span class="text-center flex-fill" style="width: 100px">{{getThemeName()}}</span>
+                        <button class="btn custom-color-secondary-text" (click)="changeToNextTheme()"><i class="fa-solid fa-caret-right"></i></button>
+                    </form>
+                    <button class="dropdown-item" (click)="logout()"><i class="pr-2 fa-solid fa-right-from-bracket"></i>Log Out</button>
                 </div>
               </div>
         </span>
@@ -41,7 +46,7 @@
             </div>
         </div>
         <div class="row w-100">
-            <div #commitDetailsView class="col-12 col-md-5 order-2 order-md-1 pl-md-0 mb-3 mb-sm-0" [style.height.px]="repoDetailsView.offsetHeight">
+            <div #commitDetailsView class="commit-view-container col-12 col-md-5 order-2 order-md-1 pl-md-0 mb-3 mb-sm-0" [style.height.px]="repoDetailsView.offsetHeight">
                 <div class="commit-view custom-panel h-100 px-lg-3">
                     <commit-detail class=""></commit-detail>
                 </div>

@@ -1,0 +1,7 @@
+{
+    "graphLineColor": "#6A6A6A",
+    "commitGraphColor": "#1D8F6D",
+    "languageGraphColors": ["#1D8F6D", "#385855", "#CFC69B", "#90D7FF", "#896978", "#F45B69"],
+    "spinnerColor": "#1D8F6D",
+    "cssFilePath": "assets/theme/css/classic.css"
+}

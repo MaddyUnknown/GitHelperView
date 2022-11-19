@@ -5,8 +5,12 @@
     --secondary-color: #385855;
     --tertiary-color: #cfc69b;
 
-    --glass-panel-color: #282A37B3;
+    --glass-panel-color: #282A37D3;
     --panel-shadow-color: #66666640;
+
+    --pop-up-color: #282A37FB;
+    --pop-up-text-color: #fff;
+    --pop-up-border-color: #66666680;
     
     --primary-text-color: #fff;
     --secondary-text-color: #D2D2D2;
