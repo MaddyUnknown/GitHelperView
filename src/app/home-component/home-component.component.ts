@@ -1,4 +1,4 @@
-import { Component, ElementRef, HostListener, OnInit, ViewChild } from '@angular/core';
+import { Component, ElementRef, HostListener, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { Router } from '@angular/router';
 import { ChartData, ChartOptions, ChartType } from 'chart.js';
 import { AuthenticationService } from '../service/auth.service';
@@ -14,6 +14,37 @@ import { ThisReceiver } from '@angular/compiler';
 import { RepoDbService } from '../service/repoDb.service';
 
 declare var $: any;
+
+interface IRepoContent {
+  repoName: string;
+  repoOwner: string;
+  repoUrl: string;
+  repoLanguageList : ILanguageDetails[] | undefined;
+  repoCreationDate: Date | undefined;
+  repoUpdateDate: Date | undefined;
+  isFavourite: boolean;
+}
+
+class RepoContent implements IRepoContent {
+  repoName: string;
+  repoOwner: string;
+  repoUrl: string;
+  repoLanguageList: ILanguageDetails[] | undefined;
+  repoCreationDate: Date | undefined;
+  repoUpdateDate: Date | undefined;
+  isFavourite: boolean;
+
+  constructor(){
+    this.repoName= "";
+    this.repoOwner= "";
+    this.repoUrl= "";
+    this.repoLanguageList= undefined;
+    this.repoCreationDate=  undefined;
+    this.repoUpdateDate= undefined;
+    this.isFavourite= false;
+  }
+
+}
 
 @Component({
   selector: 'home-component',
@@ -41,33 +72,15 @@ export class HomeComponentComponent implements OnInit {
 
   userId: number;
 
-  //Repo Details
-  languagesList?: ILanguageDetails[];
+  currentRepoDetails: IRepoContent = new RepoContent();
 
-  repoCreationDate: Date| undefined = undefined;
-
-  repoUpdateDate: Date | undefined = undefined;
-
-  repoOwner: string = "";
-
-  repoName: string = "";
-
-  repoUrl: string = "";
-
-  repoIsFavourite: boolean = false;
 
   //Repository Language Chart Variable Declarations
   chartType : ChartType = 'pie';
   
   chartData?: ChartData<ChartType>;
 
-  languageLabel?: string[];
-  
-  languageData?: number[];
-
-  backgroundColors: any = ['#1D8F6D', '#385855', '#CFC69B', '#90D7FF', '#896978', '#F45B69'];
-
-  chartLabels?: string[];
+  chartBackgroundColors: any = ['#1D8F6D', '#385855', '#CFC69B', '#90D7FF', '#896978', '#F45B69'];
 
   chartOptions : ChartOptions = {
     plugins: {
@@ -82,19 +95,18 @@ export class HomeComponentComponent implements OnInit {
   constructor(private repoService : RepoService, private repoDbService : RepoDbService, private authService: AuthenticationService, private router : Router, private toastr: ToastrService, private userPrefService: UserPreferenceService, private themeService: ThemeService) { }
 
   ngOnInit(): void {
-    //this.refreshDropdown();
     this.repoService.getRepoListAndUserDetails().subscribe({
         next:(data: {userId: number, userName: string, userAvatarUrl: string, repoList: IRepoDetails[] })=>{
           this.repoList = data.repoList;
           this.userAvatarUrl = data.userAvatarUrl;
           this.userId = data.userId;
           this.userName = data.userName;
-          this.refreshDropdown();
+          //this.refreshRepoListDropdown();
           if(this.repoList.length !== 0){
             this.reorderRepoList();
             this.selectedRepositoryValue = 0;
-            this.initOnRepoSelection('0');
-            this.refreshDropdown();
+            this.initOnRepoSelection(0);
+            this.refreshRepoListDropdown();
           }
         },
         error: (error)=>{
@@ -102,7 +114,7 @@ export class HomeComponentComponent implements OnInit {
             this.toastr.error("An error occured while fetching repository list", "Error");
         },
         complete: ()=>{
-          this.refreshDropdown();
+          this.refreshRepoListDropdown();
         }
     });
     this.changeGraphColor(this.themeService.getThemeColorScheme());
@@ -117,32 +129,85 @@ export class HomeComponentComponent implements OnInit {
     
   }
 
-  changeGraphColor(color: ITheme){
-    this.chartOptions!.plugins!.legend!.labels!.color = color.graphLineColor;
-    this.backgroundColors = color.languageGraphColors;
-    this.refreshChart();
-  }
+  initOnRepoSelection(index: number){
+    let repoObj : IRepoDetails = this.repoList[index];
+    let newRepoContent: IRepoContent = new RepoContent();
+    newRepoContent.isFavourite = repoObj.isFavourite;
 
-  refreshChart(): void {
-    if(this.languageData !== undefined){
-      this.chartData = {
-        labels: this.languageLabel,
-        datasets: [{
-          label: 'Number of bytes used: ',
-          data: this.languageData,
-          hoverOffset: 4,
-          backgroundColor: this.backgroundColors,
-        }]
-  
+    this.repoService.getRepoDetails(repoObj.repoOwner, repoObj.repoName).subscribe({
+      next: (data: {createdDate: Date, updatedDate: Date, repoLink: string, repoName: string, owner: string})=> {
+        newRepoContent.repoName = data.repoName;
+        newRepoContent.repoOwner = data.owner;
+        newRepoContent.repoUrl = data.repoLink;
+        newRepoContent.repoCreationDate = data.createdDate;
+        newRepoContent.repoUpdateDate = data.updatedDate;
+
+        this.repoService.getRepoLanguages(repoObj.repoOwner, repoObj.repoName).subscribe({
+          next: (data: ILanguageDetails[])=> {
+            console.log(data);
+            newRepoContent.repoLanguageList = data;
+            if(newRepoContent.repoName  === this.repoList[this.selectedRepositoryValue].repoName) {
+              this.currentRepoDetails = newRepoContent;
+              //Call child component change only when Repo details were fetched correctly
+              this.commitDetailsComp.repositoryDetails = repoObj;
+              this.commitGraphComp.repositoryDetails = repoObj;
+              
+              this.refreshLanguageChart();
+            }
+    
+          },
+          error: (error)=>{
+            if(error !== "suppressed")
+              this.toastr.error("An error occured while fetching repository details", "Error");
+          }
+        });
+
+      },
+      error: (error)=>{
+        if(error !== "suppressed")
+          this.toastr.error("An error occured while fetching repository details", "Error");
       }
-    }
+    });
+
   }
 
-  refreshDropdown(){
-    setTimeout(() => {
-      $(this.repoDropDown.nativeElement).selectpicker('refresh');
-    });
+  /*********************************** Event Handlers **********************************/
+
+  repoChangeHandler(value: string){
+    let index: number = parseInt(value);
+    this.repoList[index].count += 1;
+    this.reorderRepoList();
+    this.refreshRepoListDropdown();
+    this.initOnRepoSelection(this.selectedRepositoryValue);
   }
+
+  logoutHandler(){
+    this.authService.logout().subscribe({
+      next: (value : {status: string, message: string})=>{
+      },
+      error: (error)=>{
+      }
+    })
+    this.router.navigateByUrl('/login');
+  }
+
+  /************************* Property Accessor Functions ****************/
+
+  getUserName(): string {
+    return this.authService.getAuthUserName();
+  }
+
+  getThemeName(): string {
+    return this.themeService.getThemeName();
+  }
+
+  getPrefTimeOffset() : string{
+    return this.userPrefService.getPreferedTimeOffset();
+  }
+
+
+
+  /******************************* Utilities ****************************/
 
   reorderRepoList(){
     let selectedRepository : IRepoDetails;
@@ -153,6 +218,12 @@ export class HomeComponentComponent implements OnInit {
         return -1;
       }
       else if(a.isFavourite! < b.isFavourite!){
+        return 1;
+      }
+      if(a.count > b.count){
+        return -1;
+      }
+      else if(a.count < b.count){
         return 1;
       }
       else if(a.repoName.toLowerCase() < b.repoName.toLowerCase()) {
@@ -174,96 +245,37 @@ export class HomeComponentComponent implements OnInit {
 
   }
 
-  getUserName(): string {
-    return this.authService.getAuthUserName();
-  }
-
-  getThemeName(): string {
-    return this.themeService.getThemeName();
-  }
-
-  getPrefTimeOffset() : string{
-    return this.userPrefService.getPreferedTimeOffset();
-  }
-  
-
-  initOnRepoSelection(value: string){
-    let index: number = parseInt(value);
-    let repoObj : IRepoDetails = this.repoList[index];
-    this.repoIsFavourite = repoObj.isFavourite!;
-    this.repoService.getRepoLanguages(repoObj.repoOwner, repoObj.repoName).subscribe({
-      next: (data: ILanguageDetails[])=> {
-        //Call child component change only when Repo details were fetched correctly
-         this.commitDetailsComp.repositoryDetails = repoObj;
-         this.commitGraphComp.repositoryDetails = repoObj;
-
-        this.languagesList = data;
-
-        this.languageLabel = this.languagesList?.map((x)=> x.language);
-        this.languageData = this.languagesList?.map((x)=> x.bytesOfCode);
-        this.refreshChart();
-
-        this.repoService.getRepoOtherDetails(repoObj.repoOwner, repoObj.repoName).subscribe({
-          next: (data: {createdDate: Date, updatedDate: Date, repoLink: string, repoName: string, owner: string})=> {
-            this.repoCreationDate = data.createdDate;
-            this.repoUpdateDate = data.updatedDate;
-            this.repoUrl = data.repoLink;
-            this.repoName = data.repoName;
-            this.repoOwner = data.owner;
-          },
-          error: (error)=>{
-            if(error !== "suppressed")
-              this.toastr.error("An error occured while fetching repository details", "Error");
-          }
-        });
-
-      },
-      error: (error)=>{
-        if(error !== "suppressed")
-          this.toastr.error("An error occured while fetching repository details", "Error");
-      }
+  // Bootstrap selectpicker need to be refreshed when changes are made from code
+  refreshRepoListDropdown(){
+    setTimeout(() => {
+      $(this.repoDropDown.nativeElement).selectpicker('refresh');
     });
   }
 
-  logout(){
-    this.authService.logout().subscribe({
-      next: (value : {status: string, message: string})=>{
-        // if(value.status === "Success"){
-        //   this.toastr.success(value.message, value.status);
-        // }
-        // else{
-        //   this.toastr.error(value.message, value.status);
-        // }
-      },
-      error: (error)=>{
-        
-      }
-    })
-    this.router.navigateByUrl('/login');
+  refreshLanguageChart(): void {
+    let repoLanguageList = this.currentRepoDetails.repoLanguageList;
+    if(repoLanguageList === undefined) {
+      repoLanguageList = [];
+    }
+    let languageLabel = repoLanguageList?.map((x)=> x.language);
+    let languageData = repoLanguageList?.map((x)=> x.bytesOfCode);
+    this.chartData = {
+      labels: languageLabel,
+      datasets: [{
+        label: 'Number of bytes used: ',
+        data: languageData,
+        hoverOffset: 4,
+        backgroundColor: this.chartBackgroundColors,
+      }]
+
+    }
   }
 
-  // getWindowWidth(){
-  //   return window.innerWidth;
-  // }
-
-  /*
-    Needed to refresh the view everytime window size changes
-    Why needed?: Everytime the screens aspect ratio changed drastically height of 'commitDetailsView' and 'repoDetailsView' were not the same (for devices greater than xl)
-    Fix: A programatic approch is taken where the height of repoDetailsView is copied to height of commitDetailsView for xl devices.
-    [style.height.px]="repoDetailsView.offsetHeight" is used in template and to trigger this hostlistener is required.
-  */
-  @HostListener('window:resize', ['$event'])
-    onResize(event: any) {
-  }
-
-  changeTheme(theme: any){
-    //this.themeService.setTheme(theme);
-    if(theme.checked){
-      this.themeService.setTheme("Dark");
-    }
-    else{
-      this.themeService.setTheme("Light");
-    }
+  /************************ Theme Change Functions ******************************/
+  changeGraphColor(color: ITheme){
+    this.chartOptions!.plugins!.legend!.labels!.color = color.graphLineColor;
+    this.chartBackgroundColors = color.languageGraphColors;
+    this.refreshLanguageChart();
   }
 
   changeToNextTheme() {
@@ -274,9 +286,9 @@ export class HomeComponentComponent implements OnInit {
     this.themeService.setPreviousTheme();
   }
 
-  // FAVOURITE FUNCTIONALITIES
+  /************************* Favorite Change Functions ************************/
   favouriteChangeHandler() {
-    if(this.repoIsFavourite === true) {
+    if(this.currentRepoDetails.isFavourite === true) {
       this.unfavourite();
     }
     else{
@@ -284,6 +296,7 @@ export class HomeComponentComponent implements OnInit {
     }
   }
 
+  //Get favourite repository from local 'this.repoList' var
   getFavouriteRepo(): IRepoDetails | undefined{
     let favouriteRepo = this.repoList.find((obj)=>obj.isFavourite === true);
     if(favouriteRepo !== undefined){
@@ -312,10 +325,11 @@ export class HomeComponentComponent implements OnInit {
           if(data.status === "Success"){
             if(oldFavouriteRepo !== undefined)
               oldFavouriteRepo!.isFavourite = false;
-            this.repoIsFavourite = true;
+            // this.repoIsFavourite = true;
+            this.currentRepoDetails.isFavourite = true;
             this.repoList.find((obj)=>obj.repoName === newFavouriteRepo.repoName)!.isFavourite = true;
             this.reorderRepoList();
-            this.refreshDropdown();
+            this.refreshRepoListDropdown();
           }
           else {
             this.toastr.error(data.message, data.status);
@@ -339,10 +353,11 @@ export class HomeComponentComponent implements OnInit {
       this.repoDbService.removeFavourite(this.userId, favouriteRepo.repoId!).subscribe({
         next: (data: {status: string, message: string})=>{
           if(data.status === "Success"){
-            this.repoIsFavourite = false;
+            // this.repoIsFavourite = false;
+            this.currentRepoDetails.isFavourite = false;
             this.repoList.find((obj)=>obj.repoName === favouriteRepo.repoName)!.isFavourite = false;
             this.reorderRepoList();
-            this.refreshDropdown();
+            this.refreshRepoListDropdown();
           }
           else {
             this.toastr.error(data.message, data.status);
@@ -357,5 +372,19 @@ export class HomeComponentComponent implements OnInit {
     };
   }
 
+  /******************* Screen refresh on height change ********************************/
+  // getWindowWidth(){
+  //   return window.innerWidth;
+  // }
+
+  /*
+    Needed to refresh the view everytime window size changes
+    Why needed?: Everytime the screens aspect ratio changed drastically height of 'commitDetailsView' and 'repoDetailsView' were not the same (for devices greater than xl)
+    Fix: A programatic approch is taken where the height of repoDetailsView is copied to height of commitDetailsView for xl devices.
+    [style.height.px]="repoDetailsView.offsetHeight" is used in template and to trigger this hostlistener is required.
+  */
+  @HostListener('window:resize', ['$event'])
+    onResize(event: any) {
+  }
 
 }

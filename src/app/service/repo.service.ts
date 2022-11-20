@@ -11,9 +11,10 @@ export interface IRepoDetails{
     repoName: string;
     repoOwner: string;
     isFavourite: boolean;
+    count: number;
 }
 
-export const DEFAULT_REPO_DETAILS: IRepoDetails = {repoId: -1, repoOwner: '', repoName: '', 'isFavourite': false};
+export const DEFAULT_REPO_DETAILS: IRepoDetails = {repoId: -1, repoOwner: '', repoName: '', 'isFavourite': false, count: 0};
 
 export interface ICommitDetails{
     commitMessage: string;
@@ -257,7 +258,7 @@ export class RepoService{
         );
     }
 
-    getRepoOtherDetails(owner: string, repoName: string): Observable<{createdDate: Date, updatedDate: Date, repoLink: string, repoName: string, owner: string}>{
+    getRepoDetails(owner: string, repoName: string): Observable<{createdDate: Date, updatedDate: Date, repoLink: string, repoName: string, owner: string}>{
         let params = new HttpParams().set("ownerName", owner).set("repoName", repoName);
         return this.http.get<{createdAt: string, updatedAt: string, repoLink: string, repoName: string, owner: string}>(this.baseUrl + '/api/Dashboard/GetParticularRepoDetails', {params: params}).pipe(
             map((response: {createdAt: string, updatedAt: string, repoLink: string, repoName: string, owner: string})=>{
