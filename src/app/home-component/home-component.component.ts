@@ -62,7 +62,7 @@ export class HomeComponentComponent implements OnInit {
 
   @ViewChild(PopUpComponent) popUp: PopUpComponent;
 
-  selectedRepositoryValue: number = -1;
+  selectedRepositoryId: number = -1;
 
   repoList: IRepoDetails[];
 
@@ -104,8 +104,8 @@ export class HomeComponentComponent implements OnInit {
           //this.refreshRepoListDropdown();
           if(this.repoList.length !== 0){
             this.reorderRepoList();
-            this.selectedRepositoryValue = 0;
-            this.initOnRepoSelection(0);
+            this.selectedRepositoryId = this.repoList[0].repoId;
+            this.initOnRepoSelection(this.selectedRepositoryId);
             this.refreshRepoListDropdown();
           }
         },
@@ -129,8 +129,8 @@ export class HomeComponentComponent implements OnInit {
     
   }
 
-  initOnRepoSelection(index: number){
-    let repoObj : IRepoDetails = this.repoList[index];
+  initOnRepoSelection(repoId: number){
+    let repoObj : IRepoDetails = this.getRepoFromId(repoId);
     let newRepoContent: IRepoContent = new RepoContent();
     newRepoContent.isFavourite = repoObj.isFavourite;
 
@@ -144,9 +144,8 @@ export class HomeComponentComponent implements OnInit {
 
         this.repoService.getRepoLanguages(repoObj.repoOwner, repoObj.repoName).subscribe({
           next: (data: ILanguageDetails[])=> {
-            console.log(data);
             newRepoContent.repoLanguageList = data;
-            if(newRepoContent.repoName  === this.repoList[this.selectedRepositoryValue].repoName) {
+            if(newRepoContent.repoName  === this.getRepoFromId(this.selectedRepositoryId).repoName) {
               this.currentRepoDetails = newRepoContent;
               //Call child component change only when Repo details were fetched correctly
               this.commitDetailsComp.repositoryDetails = repoObj;
@@ -175,10 +174,10 @@ export class HomeComponentComponent implements OnInit {
 
   repoChangeHandler(value: string){
     let index: number = parseInt(value);
-    this.repoList[index].count += 1;
+    this.getRepoFromId(index).count += 1;
+    this.initOnRepoSelection(this.selectedRepositoryId);
     this.reorderRepoList();
     this.refreshRepoListDropdown();
-    this.initOnRepoSelection(this.selectedRepositoryValue);
   }
 
   logoutHandler(){
@@ -209,10 +208,16 @@ export class HomeComponentComponent implements OnInit {
 
   /******************************* Utilities ****************************/
 
+  getRepoFromId(repoId: number) {
+    let got =  this.repoList.find(obj => repoId == obj.repoId)!;
+    return got;
+  }
+
   reorderRepoList(){
     let selectedRepository : IRepoDetails;
-    if(this.selectedRepositoryValue !== -1)
-      selectedRepository = this.repoList[this.selectedRepositoryValue];
+    if(this.selectedRepositoryId !== -1){
+      selectedRepository = this.getRepoFromId(this.selectedRepositoryId);
+    }
     this.repoList.sort(function comparator(a: IRepoDetails,b: IRepoDetails): number { 
       if(a.isFavourite! > b.isFavourite!){
         return -1;
@@ -240,8 +245,8 @@ export class HomeComponentComponent implements OnInit {
       }
       return 0;
     });
-    if(this.selectedRepositoryValue !== -1)
-      this.selectedRepositoryValue = this.repoList.findIndex((obj)=>(obj.repoName === selectedRepository.repoName && obj.repoOwner === selectedRepository.repoOwner));
+    if(this.selectedRepositoryId !== -1)
+      this.selectedRepositoryId = selectedRepository!.repoId;
 
   }
 
@@ -308,7 +313,7 @@ export class HomeComponentComponent implements OnInit {
   }
 
   async changeFavourite() {
-    let newFavouriteRepo = this.repoList[this.selectedRepositoryValue];
+    let newFavouriteRepo = this.getRepoFromId(this.selectedRepositoryId);
     let oldFavouriteRepo = this.getFavouriteRepo();
     let heading = "Confirmation";
     let body = `Are you sure you will like to set ${newFavouriteRepo.repoName} as the new favourite repository`;
@@ -345,7 +350,7 @@ export class HomeComponentComponent implements OnInit {
   }
 
   async unfavourite() {
-    let favouriteRepo = this.repoList[this.selectedRepositoryValue];
+    let favouriteRepo = this.getRepoFromId(this.selectedRepositoryId);
     let heading = "Confirmation";
     let body = `Are you sure you will like to remove ${favouriteRepo.repoName} as the favourite repository ?`;
 
