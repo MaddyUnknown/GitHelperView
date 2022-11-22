@@ -181,10 +181,25 @@ export class HomeComponentComponent implements OnInit {
   }
 
   logoutHandler(){
-    this.authService.logout().subscribe({
-      next: (value : {status: string, message: string})=>{
+     this.repoDbService.persistActivityCount(this.getActivityCount()).subscribe({
+      next: (data) => {
+        this.authService.logout().subscribe({
+          next: (value : {status: string, message: string})=>{
+          },
+          error: (error)=>{
+          }
+        });
       },
-      error: (error)=>{
+      error: (error) => {
+        if(error !== "suppressed")
+          console.error("An error occured while persisting activity count");
+        this.authService.logout().subscribe({
+          next: (value : {status: string, message: string})=>{
+          },
+          error: (error)=>{
+          }
+        })
+        
       }
     })
     this.router.navigateByUrl('/login');
@@ -276,6 +291,15 @@ export class HomeComponentComponent implements OnInit {
     }
   }
 
+  getActivityCount() {
+    return this.repoList.reduce((total: {repoId: number, count: number}[], currentValue: IRepoDetails, currentIndex: number)=>{
+      if(currentValue.count > 0) {
+        total.push({repoId: currentValue.repoId, count: currentValue.count});
+      }
+      return total;
+    }, []);
+  }
+
   /************************ Theme Change Functions ******************************/
   changeGraphColor(color: ITheme){
     this.chartOptions!.plugins!.legend!.labels!.color = color.graphLineColor;
@@ -325,7 +349,7 @@ export class HomeComponentComponent implements OnInit {
     }
 
     if((await this.popUp.showPrompt(heading, body)) === true){
-      this.repoDbService.setFavourite(this.userId, newFavouriteRepo.repoId!).subscribe({
+      this.repoDbService.setFavourite(newFavouriteRepo.repoId!).subscribe({
         next: (data: {status: string, message: string})=>{
           if(data.status === "Success"){
             if(oldFavouriteRepo !== undefined)
@@ -355,7 +379,7 @@ export class HomeComponentComponent implements OnInit {
     let body = `Are you sure you will like to remove ${favouriteRepo.repoName} as the favourite repository ?`;
 
     if((await this.popUp.showPrompt(heading, body)) === true) {
-      this.repoDbService.removeFavourite(this.userId, favouriteRepo.repoId!).subscribe({
+      this.repoDbService.removeFavourite(favouriteRepo.repoId!).subscribe({
         next: (data: {status: string, message: string})=>{
           if(data.status === "Success"){
             // this.repoIsFavourite = false;

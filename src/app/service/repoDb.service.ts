@@ -14,17 +14,22 @@ export class RepoDbService{
         this.baseUrl = environment.webApiBaseUrl;
     }
 
-    removeFavourite(userId: number, repoId: number): Observable<{status: string, message: string}>{
-        let params = new HttpParams().set("userId", userId).set("repoId", repoId);
-        return this.http.get<{status: string, message: string}>(this.baseUrl + '/api/Favourite/RemoveFavourite', {params: params}).pipe(
+    removeFavourite(repoId: number): Observable<{status: string, message: string}>{
+        return this.http.post<{status: string, message: string}>(this.baseUrl + '/api/RepoActivity/RemoveFavourite', repoId).pipe(
             catchError( error => {
                 return this.handelError(error); // From 'rxjs'
             }));
     }
 
-    setFavourite(userId: number, repoId: number): Observable<{status: string, message: string}>{
-        let params = new HttpParams().set("userId", userId).set("repoId", repoId);
-        return this.http.get<{status: string, message: string}>(this.baseUrl + '/api/Favourite/SetFavourite', {params: params}).pipe(
+    setFavourite(repoId: number): Observable<{status: string, message: string}>{
+        return this.http.post<{status: string, message: string}>(this.baseUrl + '/api/RepoActivity/SetFavourite', repoId).pipe(
+            catchError( error => {
+                return this.handelError(error); // From 'rxjs'
+            }));
+    }
+
+    persistActivityCount(repoActivity: {repoId: number, count: number}[]): Observable<{status: string, message: string}>{
+        return this.http.post<{status: string, message: string}>(this.baseUrl + '/api/RepoActivity/UpdateRepoCount', repoActivity).pipe(
             catchError( error => {
                 return this.handelError(error); // From 'rxjs'
             }));
