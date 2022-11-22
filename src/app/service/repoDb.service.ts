@@ -4,13 +4,15 @@ import { Router } from "@angular/router";
 import { catchError, delay, map, Observable, of, throwError } from "rxjs";
 import { ToastrService } from 'ngx-toastr'; 
 import { environment } from "src/environments/environment";
+import { BaseHttpService } from "./base.http.service";
 
 @Injectable()
-export class RepoDbService{
+export class RepoDbService extends BaseHttpService{
 
     baseUrl : string = "";
 
-    constructor(private http: HttpClient, private router: Router, private toastr: ToastrService){ 
+    constructor(private http: HttpClient, router: Router, toastr: ToastrService){ 
+        super(router, toastr);
         this.baseUrl = environment.webApiBaseUrl;
     }
 
@@ -34,22 +36,6 @@ export class RepoDbService{
                 return this.handelError(error); // From 'rxjs'
             }));
     }
-
-
-    private handelError(error: HttpErrorResponse){
-        let customError:any;
-        if(error.status == 401){
-            this.router.navigateByUrl('/login');
-            this.toastr.error("Your are not authorised to access this page. Please Log In", "Error");
-            customError = "suppressed";
-        }else{
-            customError = error;
-        }
-
-        return throwError(customError);
-    }
-
-
     
 
 }

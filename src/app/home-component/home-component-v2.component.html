@@ -5,7 +5,7 @@
         <span id="profile-component" class="">
             <div class="dropdown">
                 <button class="btn dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                    <img class="avatarPic" src={{userAvatarUrl}}>
+                    <img class="avatarPic" src={{loggedInUser.userAvatarUrl}}>
                 </button>
                 <div class="profile-dropdown dropdown-menu dropdown-menu-right text-center" style="color: var(--custom-color-primary-text)" aria-labelledby="dropdownMenuButton">
                     <!-- <div class="custom-control custom-switch" style="left:20px;">
@@ -24,7 +24,7 @@
     </nav>
      <main class="d-flex flex-column align-items-center flex-fill">
         <div class="row w-100 mb-2">
-            <div class="col-12 col-md-5 px-md-0 align-middle h4 font-weight-semibold custom-color-primary">Welcome, {{userName}}</div>
+            <div class="col-12 col-md-5 px-md-0 align-middle h4 font-weight-semibold custom-color-primary">Welcome, {{loggedInUser.userName}}</div>
             <div class="col-12 col-md-7">
                 <div class="row">
                     <div class="col-12 col-md-6 p-0 offset-md-6">

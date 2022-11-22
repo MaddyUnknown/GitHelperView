@@ -1,16 +1,14 @@
-import { Component, ElementRef, HostListener, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { Component, ElementRef, HostListener, OnInit, ViewChild } from '@angular/core';
 import { Router } from '@angular/router';
 import { ChartData, ChartOptions, ChartType } from 'chart.js';
-import { AuthenticationService } from '../service/auth.service';
-import { DEFAULT_REPO_DETAILS, ILanguageDetails, IRepoDetails, RepoService } from '../service/repo.service';
+import { AuthenticationService, DEFAULT_USER_DETAILS, IUser } from '../service/auth.service';
+import { ILanguageDetails, IRepoDetails, RepoService } from '../service/repo.service';
 import { ToastrService } from 'ngx-toastr'; 
 import { CommitDetailComponent } from '../commit-detail/commit-detail.component';
 import { CommitGraphComponent } from '../commit-graph/commit-graph.component';
 import { UserPreferenceService } from '../service/user.preference.service';
 import { ITheme, ThemeService } from '../service/theme.service';
-import { reduce } from 'rxjs';
 import { PopUpComponent } from '../pop-up/pop-up.component';
-import { ThisReceiver } from '@angular/compiler';
 import { RepoDbService } from '../service/repoDb.service';
 
 declare var $: any;
@@ -66,11 +64,13 @@ export class HomeComponentComponent implements OnInit {
 
   repoList: IRepoDetails[];
 
-  userAvatarUrl?: string;
+  // userAvatarUrl?: string;
 
-  userName: string;
+  // userName: string;
 
-  userId: number;
+  // userId: number;
+
+  loggedInUser: IUser = DEFAULT_USER_DETAILS;
 
   currentRepoDetails: IRepoContent = new RepoContent();
 
@@ -95,12 +95,19 @@ export class HomeComponentComponent implements OnInit {
   constructor(private repoService : RepoService, private repoDbService : RepoDbService, private authService: AuthenticationService, private router : Router, private toastr: ToastrService, private userPrefService: UserPreferenceService, private themeService: ThemeService) { }
 
   ngOnInit(): void {
-    this.repoService.getRepoListAndUserDetails().subscribe({
-        next:(data: {userId: number, userName: string, userAvatarUrl: string, repoList: IRepoDetails[] })=>{
-          this.repoList = data.repoList;
-          this.userAvatarUrl = data.userAvatarUrl;
-          this.userId = data.userId;
-          this.userName = data.userName;
+    this.authService.getAuthUserInfo().subscribe({
+      next: (data: IUser) =>{
+        this.loggedInUser = data;
+      },
+      error: (error)=>{
+        if(error !== "suppressed")
+          this.toastr.error("An error occured while fetching user details", "Error");
+      }
+    })
+
+    this.repoService.getRepoList().subscribe({
+        next:(data: IRepoDetails[])=>{
+          this.repoList = data;
           //this.refreshRepoListDropdown();
           if(this.repoList.length !== 0){
             this.reorderRepoList();
@@ -207,9 +214,9 @@ export class HomeComponentComponent implements OnInit {
 
   /************************* Property Accessor Functions ****************/
 
-  getUserName(): string {
-    return this.authService.getAuthUserName();
-  }
+  // getUserName(): string {
+  //   return this.authService.getAuthUserName();
+  // }
 
   getThemeName(): string {
     return this.themeService.getThemeName();

@@ -4,6 +4,7 @@ import { Router } from "@angular/router";
 import { catchError, delay, map, Observable, of, throwError } from "rxjs";
 import { ToastrService } from 'ngx-toastr'; 
 import { environment } from "src/environments/environment";
+import { BaseHttpService } from "./base.http.service";
 
 
 export interface IRepoDetails{
@@ -34,17 +35,28 @@ export interface IMonthYear{
 }
 
 @Injectable()
-export class RepoService{
+export class RepoService extends BaseHttpService{
 
     baseUrl : string = "";
 
-    constructor(private http: HttpClient, private router: Router, private toastr: ToastrService){ 
+    constructor(private http: HttpClient, router: Router, toastr: ToastrService){ 
+        super(router, toastr);
         this.baseUrl = environment.webApiBaseUrl;
     }
 
     //Get list of repo (for user cookie)
     getRepoListAndUserDetails(): Observable<{userId: number, userName: string, userAvatarUrl: string, repoList: IRepoDetails[] }> {
         return this.http.get<{userId: number, userName: string, userAvatarUrl: string, repoList: IRepoDetails[] }>(this.baseUrl + '/api/DashBoard/GetUserDetails').pipe(
+            catchError( error => {
+                return this.handelError(error); // From 'rxjs'
+            })
+        );
+
+    }
+
+    //Get list of repo (for user cookie)
+    getRepoList(): Observable<IRepoDetails[] > {
+        return this.http.get<IRepoDetails[]>(this.baseUrl + '/api/DashBoard/GetUserRepoList').pipe(
             catchError( error => {
                 return this.handelError(error); // From 'rxjs'
             })
@@ -106,20 +118,6 @@ export class RepoService{
         catchError( error => {
             return this.handelError(error); // From 'rxjs'
         }));
-    }
-
-
-    private handelError(error: HttpErrorResponse){
-        let customError:any;
-        if(error.status == 401){
-            this.router.navigateByUrl('/login');
-            this.toastr.error("Your are not authorised to access this page. Please Log In", "Error");
-            customError = "suppressed";
-        }else{
-            customError = error;
-        }
-
-        return throwError(customError);
     }
 
 
