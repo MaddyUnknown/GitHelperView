@@ -4,14 +4,18 @@ import { Router } from "@angular/router";
 import { catchError, delay, map, Observable, of, throwError } from "rxjs";
 import { ToastrService } from 'ngx-toastr'; 
 import { environment } from "src/environments/environment";
+import { BaseHttpService } from "./base.http.service";
 
 
 export interface IRepoDetails{
+    repoId: number;
     repoName: string;
-    owner: string;
+    repoOwner: string;
+    isFavourite: boolean;
+    count: number;
 }
 
-export const DEFAULT_REPO_DETAILS: IRepoDetails = {owner: '', repoName: ''};
+export const DEFAULT_REPO_DETAILS: IRepoDetails = {repoId: -1, repoOwner: '', repoName: '', 'isFavourite': false, count: 0};
 
 export interface ICommitDetails{
     commitMessage: string;
@@ -31,17 +35,28 @@ export interface IMonthYear{
 }
 
 @Injectable()
-export class RepoService{
+export class RepoService extends BaseHttpService{
 
     baseUrl : string = "";
 
-    constructor(private http: HttpClient, private router: Router, private toastr: ToastrService){ 
+    constructor(private http: HttpClient, router: Router, toastr: ToastrService){ 
+        super(router, toastr);
         this.baseUrl = environment.webApiBaseUrl;
     }
 
     //Get list of repo (for user cookie)
-    getRepoListAndUserDetails(): Observable<{userAvatarUrl: string, repoList: IRepoDetails[] }> {
-        return this.http.get<{userAvatarUrl: string, repoList: IRepoDetails[] }>(this.baseUrl + '/api/DashBoard/GetUserDetails').pipe(
+    getRepoListAndUserDetails(): Observable<{userId: number, userName: string, userAvatarUrl: string, repoList: IRepoDetails[] }> {
+        return this.http.get<{userId: number, userName: string, userAvatarUrl: string, repoList: IRepoDetails[] }>(this.baseUrl + '/api/DashBoard/GetUserDetails').pipe(
+            catchError( error => {
+                return this.handelError(error); // From 'rxjs'
+            })
+        );
+
+    }
+
+    //Get list of repo (for user cookie)
+    getRepoList(): Observable<IRepoDetails[] > {
+        return this.http.get<IRepoDetails[]>(this.baseUrl + '/api/DashBoard/GetUserRepoList').pipe(
             catchError( error => {
                 return this.handelError(error); // From 'rxjs'
             })
@@ -94,7 +109,7 @@ export class RepoService{
         );
     }
 
-    getRepoOtherDetails(owner: string, repoName: string): Observable<{createdDate: Date, updatedDate: Date, repoLink: string, repoName: string, owner: string}>{
+    getRepoDetails(owner: string, repoName: string): Observable<{createdDate: Date, updatedDate: Date, repoLink: string, repoName: string, owner: string}>{
         let params = new HttpParams().set("ownerName", owner).set("repoName", repoName);
         return this.http.get<{createdAt: string, updatedAt: string, repoLink: string, repoName: string, owner: string}>(this.baseUrl + '/api/Dashboard/GetParticularRepoDetails', {params: params}).pipe(
             map((response: {createdAt: string, updatedAt: string, repoLink: string, repoName: string, owner: string})=>{
@@ -103,20 +118,6 @@ export class RepoService{
         catchError( error => {
             return this.handelError(error); // From 'rxjs'
         }));
-    }
-
-
-    private handelError(error: HttpErrorResponse){
-        let customError:any;
-        if(error.status == 401){
-            this.router.navigateByUrl('/login');
-            this.toastr.error("Your are not authorised to access this page. Please Log In", "Error");
-            customError = "suppressed";
-        }else{
-            customError = error;
-        }
-
-        return throwError(customError);
     }
 
 

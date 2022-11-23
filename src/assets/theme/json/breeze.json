@@ -1,0 +1,7 @@
+{
+    "graphLineColor": "#6A6A6A",
+    "commitGraphColor": "#47959E",
+    "languageGraphColors": ["#47959E", "#022249", "#627264", "#F07C41", "#282A37", "#F1E0C5"],
+    "spinnerColor": "#47959E",
+    "cssFilePath": "assets/theme/css/breeze.css"
+}

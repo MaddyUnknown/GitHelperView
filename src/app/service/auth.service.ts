@@ -1,25 +1,37 @@
 import { HttpClient } from "@angular/common/http";
 import { Injectable } from "@angular/core";
-import { map, Observable } from "rxjs";
+import { Router } from "@angular/router";
+import { ToastrService } from "ngx-toastr";
+import { catchError, firstValueFrom, map, Observable, of } from "rxjs";
 import { environment } from "src/environments/environment";
+import { BaseHttpService } from "./base.http.service";
 
+export interface IUser {
+    userId: number;
+    userName: string;
+    userAvatarUrl: string;
+}
+
+export const DEFAULT_USER_DETAILS : IUser = {userId: -1, userName: "", userAvatarUrl: ""};
 
 @Injectable()
-export class AuthenticationService{
+export class AuthenticationService extends BaseHttpService{
 
     baseUrl : string = "";
 
-    getAuthUserName(): string {
-        let username: string| null = localStorage.getItem('userName');
-        if(username === null){
-            return "";
+    private userDetails: IUser | undefined;
+
+    getAuthUserInfo(): Observable<IUser> {
+        if(this.userDetails !== undefined && this.userDetails !== DEFAULT_USER_DETAILS) {
+            return of(this.userDetails);
         }
-        else{
-            return username;
+        else {
+            return this.http.get<IUser>(this.baseUrl+ "/api/Login/GetUser")
         }
     }
 
-    constructor(private http: HttpClient){ 
+    constructor(private http: HttpClient, router: Router, toastr: ToastrService){ 
+        super(router, toastr);
         this.baseUrl = environment.webApiBaseUrl;
     }
 
@@ -30,7 +42,6 @@ export class AuthenticationService{
     authenticate(username:string, token:string): Observable<{status: string,message: string}>{
         return this.http.post<{status: string,message: string}>(this.baseUrl + '/api/Login/AuthenticateUser', {username : username, token : token}).pipe(
             map((response: {status: string,message: string})=>{
-                localStorage.setItem('userName', username);
                 return response;
             })
         );
@@ -38,9 +49,8 @@ export class AuthenticationService{
 
     logout(): Observable<{status: string,message: string}> {
         return this.http.get<{status: string,message: string}>(this.baseUrl + '/api/Login/Logout').pipe(
-            map((response: {status: string, message: string})=>{
-                localStorage.removeItem('userName');
-                return response;
+            catchError( error => {
+                return this.handelError(error); // From 'rxjs'
             })
         );
     }

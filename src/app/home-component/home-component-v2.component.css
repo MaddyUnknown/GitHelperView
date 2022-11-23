@@ -29,17 +29,40 @@
     width : 100%;
 }
 
-.profile-dropdown {
-    width: 200px;
+.profile-dropdown.dropdown-menu .theme-change-control {
+    color: var(--primary-text-color);
+}
+
+.profile-dropdown.dropdown-menu .theme-change-control.active,
+.profile-dropdown.dropdown-menu .theme-change-control:focus {
+    color: var(--primary-text-color);
+}
+
+.profile-dropdown.dropdown-menu .theme-change-control:hover {
+    background-color: transparent;
+    color: var(--primary-text-color);
 }
 
 .dropdown-toggle::after {
-    color: var(--primary-text-color);
+    color: var(--primary-text-color); 
 }
+
+.favourite-button {
+    cursor: pointer;
+}
+
+.commit-view-container {
+    max-height: 700px;
+}
+
 
 @media (min-width: 576px) { 
     .repo-details,
     .language-view-container {
         width : 50%;
+    }
+
+    .commit-view-container {
+        max-height: none;
     }
 }

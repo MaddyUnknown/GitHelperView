@@ -1,0 +1,10 @@
+.prompt-container {
+    position: relative;
+    min-height: 160px;
+    max-width: 500px;
+    border-radius: 15px;
+}
+
+.pop-up-container {
+    background-color: var(--panel-shadow-color);
+}

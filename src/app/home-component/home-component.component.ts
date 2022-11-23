@@ -1,16 +1,48 @@
 import { Component, ElementRef, HostListener, OnInit, ViewChild } from '@angular/core';
 import { Router } from '@angular/router';
 import { ChartData, ChartOptions, ChartType } from 'chart.js';
-import { AuthenticationService } from '../service/auth.service';
-import { DEFAULT_REPO_DETAILS, ILanguageDetails, IRepoDetails, RepoService } from '../service/repo.service';
+import { AuthenticationService, DEFAULT_USER_DETAILS, IUser } from '../service/auth.service';
+import { ILanguageDetails, IRepoDetails, RepoService } from '../service/repo.service';
 import { ToastrService } from 'ngx-toastr'; 
 import { CommitDetailComponent } from '../commit-detail/commit-detail.component';
 import { CommitGraphComponent } from '../commit-graph/commit-graph.component';
 import { UserPreferenceService } from '../service/user.preference.service';
 import { ITheme, ThemeService } from '../service/theme.service';
-import { reduce } from 'rxjs';
+import { PopUpComponent } from '../pop-up/pop-up.component';
+import { RepoDbService } from '../service/repoDb.service';
 
 declare var $: any;
+
+interface IRepoContent {
+  repoName: string;
+  repoOwner: string;
+  repoUrl: string;
+  repoLanguageList : ILanguageDetails[] | undefined;
+  repoCreationDate: Date | undefined;
+  repoUpdateDate: Date | undefined;
+  isFavourite: boolean;
+}
+
+class RepoContent implements IRepoContent {
+  repoName: string;
+  repoOwner: string;
+  repoUrl: string;
+  repoLanguageList: ILanguageDetails[] | undefined;
+  repoCreationDate: Date | undefined;
+  repoUpdateDate: Date | undefined;
+  isFavourite: boolean;
+
+  constructor(){
+    this.repoName= "";
+    this.repoOwner= "";
+    this.repoUrl= "";
+    this.repoLanguageList= undefined;
+    this.repoCreationDate=  undefined;
+    this.repoUpdateDate= undefined;
+    this.isFavourite= false;
+  }
+
+}
 
 @Component({
   selector: 'home-component',
@@ -26,37 +58,29 @@ export class HomeComponentComponent implements OnInit {
   @ViewChild(CommitDetailComponent) commitDetailsComp: CommitDetailComponent;
   @ViewChild(CommitGraphComponent)  commitGraphComp: CommitGraphComponent;
 
-  selectedRepositoryValue: number = -1;
+  @ViewChild(PopUpComponent) popUp: PopUpComponent;
+
+  selectedRepositoryId: number = -1;
 
   repoList: IRepoDetails[];
 
-  userAvatarUrl?: string;
+  // userAvatarUrl?: string;
 
-  //Repo Details
-  languagesList?: ILanguageDetails[];
+  // userName: string;
 
-  repoCreationDate: Date| undefined = undefined;
+  // userId: number;
 
-  repoUpdateDate: Date | undefined = undefined;
+  loggedInUser: IUser = DEFAULT_USER_DETAILS;
 
-  repoOwner: string = "";
+  currentRepoDetails: IRepoContent = new RepoContent();
 
-  repoName: string = "";
 
-  repoUrl: string = "";
-
-  //Chart Variable Declarations
+  //Repository Language Chart Variable Declarations
   chartType : ChartType = 'pie';
   
   chartData?: ChartData<ChartType>;
 
-  languageLabel?: string[];
-  
-  languageData?: number[];
-
-  backgroundColors: any = ['#1D8F6D', '#385855', '#CFC69B', '#90D7FF', '#896978', '#F45B69'];
-
-  chartLabels?: string[];
+  chartBackgroundColors: any = ['#1D8F6D', '#385855', '#CFC69B', '#90D7FF', '#896978', '#F45B69'];
 
   chartOptions : ChartOptions = {
     plugins: {
@@ -68,24 +92,36 @@ export class HomeComponentComponent implements OnInit {
     }
   };
 
-  constructor(private repoService : RepoService, private authService: AuthenticationService, private router : Router, private toastr: ToastrService, private userPrefService: UserPreferenceService, private themeService: ThemeService) { }
+  constructor(private repoService : RepoService, private repoDbService : RepoDbService, private authService: AuthenticationService, private router : Router, private toastr: ToastrService, private userPrefService: UserPreferenceService, private themeService: ThemeService) { }
 
   ngOnInit(): void {
-    this.refreshDropdown();
-    this.repoService.getRepoListAndUserDetails().subscribe({
-        next:(data: {userAvatarUrl: string, repoList: IRepoDetails[] })=>{
-          this.repoList = data.repoList;
-          this.userAvatarUrl = data.userAvatarUrl;
-          this.refreshDropdown();
+    this.authService.getAuthUserInfo().subscribe({
+      next: (data: IUser) =>{
+        this.loggedInUser = data;
+      },
+      error: (error)=>{
+        if(error !== "suppressed")
+          this.toastr.error("An error occured while fetching user details", "Error");
+      }
+    })
+
+    this.repoService.getRepoList().subscribe({
+        next:(data: IRepoDetails[])=>{
+          this.repoList = data;
+          //this.refreshRepoListDropdown();
           if(this.repoList.length !== 0){
-            this.selectedRepositoryValue = 0;
-            this.refreshDropdown();
-            this.initOnRepoSelection('0');
+            this.reorderRepoList();
+            this.selectedRepositoryId = this.repoList[0].repoId;
+            this.initOnRepoSelection(this.selectedRepositoryId);
+            this.refreshRepoListDropdown();
           }
         },
         error: (error)=>{
           if(error !== "suppressed")
             this.toastr.error("An error occured while fetching repository list", "Error");
+        },
+        complete: ()=>{
+          this.refreshRepoListDropdown();
         }
     });
     this.changeGraphColor(this.themeService.getThemeColorScheme());
@@ -100,46 +136,31 @@ export class HomeComponentComponent implements OnInit {
     
   }
 
-  refreshDropdown(){
-    setTimeout(() => {
-      $(this.repoDropDown.nativeElement).selectpicker('refresh');
-    });
-  }
+  initOnRepoSelection(repoId: number){
+    let repoObj : IRepoDetails = this.getRepoFromId(repoId);
+    let newRepoContent: IRepoContent = new RepoContent();
+    newRepoContent.isFavourite = repoObj.isFavourite;
 
-  getUserName(): string {
-    return this.authService.getAuthUserName();
-  }
+    this.repoService.getRepoDetails(repoObj.repoOwner, repoObj.repoName).subscribe({
+      next: (data: {createdDate: Date, updatedDate: Date, repoLink: string, repoName: string, owner: string})=> {
+        newRepoContent.repoName = data.repoName;
+        newRepoContent.repoOwner = data.owner;
+        newRepoContent.repoUrl = data.repoLink;
+        newRepoContent.repoCreationDate = data.createdDate;
+        newRepoContent.repoUpdateDate = data.updatedDate;
 
-  getThemeName(): string {
-    return this.themeService.getThemeName();
-  }
-
-  getPrefTimeOffset() : string{
-    return this.userPrefService.getPreferedTimeOffset();
-  }
-
-  initOnRepoSelection(value: string){
-    let index: number = parseInt(value);
-    let repoObj : IRepoDetails = this.repoList[index];
-    this.repoService.getRepoLanguages(repoObj.owner, repoObj.repoName).subscribe({
-      next: (data: ILanguageDetails[])=> {
-        //Call child component change only when Repo details were fetched correctly
-         this.commitDetailsComp.repositoryDetails = repoObj;
-         this.commitGraphComp.repositoryDetails = repoObj;
-
-        this.languagesList = data;
-
-        this.languageLabel = this.languagesList?.map((x)=> x.language);
-        this.languageData = this.languagesList?.map((x)=> x.bytesOfCode);
-        this.refreshChart();
-
-        this.repoService.getRepoOtherDetails(repoObj.owner, repoObj.repoName).subscribe({
-          next: (data: {createdDate: Date, updatedDate: Date, repoLink: string, repoName: string, owner: string})=> {
-            this.repoCreationDate = data.createdDate;
-            this.repoUpdateDate = data.updatedDate;
-            this.repoUrl = data.repoLink;
-            this.repoName = data.repoName;
-            this.repoOwner = data.owner;
+        this.repoService.getRepoLanguages(repoObj.repoOwner, repoObj.repoName).subscribe({
+          next: (data: ILanguageDetails[])=> {
+            newRepoContent.repoLanguageList = data;
+            if(newRepoContent.repoName  === this.getRepoFromId(this.selectedRepositoryId).repoName) {
+              this.currentRepoDetails = newRepoContent;
+              //Call child component change only when Repo details were fetched correctly
+              this.commitDetailsComp.repositoryDetails = repoObj;
+              this.commitGraphComp.repositoryDetails = repoObj;
+              
+              this.refreshLanguageChart();
+            }
+    
           },
           error: (error)=>{
             if(error !== "suppressed")
@@ -153,46 +174,241 @@ export class HomeComponentComponent implements OnInit {
           this.toastr.error("An error occured while fetching repository details", "Error");
       }
     });
+
   }
 
-  changeGraphColor(color: ITheme){
-    this.chartOptions!.plugins!.legend!.labels!.color = color.graphLineColor;
-    this.backgroundColors = color.languageGraphColors;
-    this.refreshChart();
+  /*********************************** Event Handlers **********************************/
+
+  repoChangeHandler(value: string){
+    let index: number = parseInt(value);
+    this.getRepoFromId(index).count += 1;
+    this.initOnRepoSelection(this.selectedRepositoryId);
+    this.reorderRepoList();
+    this.refreshRepoListDropdown();
   }
 
-  refreshChart(): void {
-    if(this.languageData !== undefined){
-      this.chartData = {
-        labels: this.languageLabel,
-        datasets: [{
-          label: 'Number of bytes used: ',
-          data: this.languageData,
-          hoverOffset: 4,
-          backgroundColor: this.backgroundColors,
-        }]
-  
-      }
-    }
-  }
-
-  logout(){
-    this.authService.logout().subscribe({
-      next: (value : {status: string, message: string})=>{
-        // if(value.status === "Success"){
-        //   this.toastr.success(value.message, value.status);
-        // }
-        // else{
-        //   this.toastr.error(value.message, value.status);
-        // }
+  logoutHandler(){
+     this.repoDbService.persistActivityCount(this.getActivityCount()).subscribe({
+      next: (data) => {
+        this.authService.logout().subscribe({
+          next: (value : {status: string, message: string})=>{
+          },
+          error: (error)=>{
+          }
+        });
       },
-      error: (error)=>{
+      error: (error) => {
+        if(error !== "suppressed")
+          console.error("An error occured while persisting activity count");
+        this.authService.logout().subscribe({
+          next: (value : {status: string, message: string})=>{
+          },
+          error: (error)=>{
+          }
+        })
         
       }
     })
     this.router.navigateByUrl('/login');
   }
 
+  /************************* Property Accessor Functions ****************/
+
+  // getUserName(): string {
+  //   return this.authService.getAuthUserName();
+  // }
+
+  getThemeName(): string {
+    return this.themeService.getThemeName();
+  }
+
+  getPrefTimeOffset() : string{
+    return this.userPrefService.getPreferedTimeOffset();
+  }
+
+
+
+  /******************************* Utilities ****************************/
+
+  getRepoFromId(repoId: number) {
+    let got =  this.repoList.find(obj => repoId == obj.repoId)!;
+    return got;
+  }
+
+  reorderRepoList(){
+    let selectedRepository : IRepoDetails;
+    if(this.selectedRepositoryId !== -1){
+      selectedRepository = this.getRepoFromId(this.selectedRepositoryId);
+    }
+    this.repoList.sort(function comparator(a: IRepoDetails,b: IRepoDetails): number { 
+      if(a.isFavourite! > b.isFavourite!){
+        return -1;
+      }
+      else if(a.isFavourite! < b.isFavourite!){
+        return 1;
+      }
+      if(a.count > b.count){
+        return -1;
+      }
+      else if(a.count < b.count){
+        return 1;
+      }
+      else if(a.repoName.toLowerCase() < b.repoName.toLowerCase()) {
+        return -1;
+      }
+      else if(a.repoName.toLowerCase() > b.repoName.toLowerCase()) {
+        return 1;
+      }
+      else if(a.repoOwner.toLowerCase() < b.repoOwner.toLowerCase()){
+        return -1;
+      }
+      else if(a.repoOwner.toLowerCase() > b.repoOwner.toLowerCase()){
+        return 1;
+      }
+      return 0;
+    });
+    if(this.selectedRepositoryId !== -1)
+      this.selectedRepositoryId = selectedRepository!.repoId;
+
+  }
+
+  // Bootstrap selectpicker need to be refreshed when changes are made from code
+  refreshRepoListDropdown(){
+    setTimeout(() => {
+      $(this.repoDropDown.nativeElement).selectpicker('refresh');
+    });
+  }
+
+  refreshLanguageChart(): void {
+    let repoLanguageList = this.currentRepoDetails.repoLanguageList;
+    if(repoLanguageList === undefined) {
+      repoLanguageList = [];
+    }
+    let languageLabel = repoLanguageList?.map((x)=> x.language);
+    let languageData = repoLanguageList?.map((x)=> x.bytesOfCode);
+    this.chartData = {
+      labels: languageLabel,
+      datasets: [{
+        label: 'Number of bytes used: ',
+        data: languageData,
+        hoverOffset: 4,
+        backgroundColor: this.chartBackgroundColors,
+      }]
+
+    }
+  }
+
+  getActivityCount() {
+    return this.repoList.reduce((total: {repoId: number, count: number}[], currentValue: IRepoDetails, currentIndex: number)=>{
+      if(currentValue.count > 0) {
+        total.push({repoId: currentValue.repoId, count: currentValue.count});
+      }
+      return total;
+    }, []);
+  }
+
+  /************************ Theme Change Functions ******************************/
+  changeGraphColor(color: ITheme){
+    this.chartOptions!.plugins!.legend!.labels!.color = color.graphLineColor;
+    this.chartBackgroundColors = color.languageGraphColors;
+    this.refreshLanguageChart();
+  }
+
+  changeToNextTheme() {
+    this.themeService.setNextTheme();
+  }
+
+  changeToPreviousTheme() {
+    this.themeService.setPreviousTheme();
+  }
+
+  /************************* Favorite Change Functions ************************/
+  favouriteChangeHandler() {
+    if(this.currentRepoDetails.isFavourite === true) {
+      this.unfavourite();
+    }
+    else{
+      this.changeFavourite();
+    }
+  }
+
+  //Get favourite repository from local 'this.repoList' var
+  getFavouriteRepo(): IRepoDetails | undefined{
+    let favouriteRepo = this.repoList.find((obj)=>obj.isFavourite === true);
+    if(favouriteRepo !== undefined){
+      return favouriteRepo;
+    }
+    else{
+      return undefined;
+    }
+  }
+
+  async changeFavourite() {
+    let newFavouriteRepo = this.getRepoFromId(this.selectedRepositoryId);
+    let oldFavouriteRepo = this.getFavouriteRepo();
+    let heading = "Confirmation";
+    let body = `Are you sure you will like to set ${newFavouriteRepo.repoName} as the new favourite repository`;
+    if(oldFavouriteRepo === undefined){
+      body += " ?";
+    }
+    else{
+      body += ` instead of ${oldFavouriteRepo.repoName}?`;
+    }
+
+    if((await this.popUp.showPrompt(heading, body)) === true){
+      this.repoDbService.setFavourite(newFavouriteRepo.repoId!).subscribe({
+        next: (data: {status: string, message: string})=>{
+          if(data.status === "Success"){
+            if(oldFavouriteRepo !== undefined)
+              oldFavouriteRepo!.isFavourite = false;
+            // this.repoIsFavourite = true;
+            this.currentRepoDetails.isFavourite = true;
+            this.repoList.find((obj)=>obj.repoName === newFavouriteRepo.repoName)!.isFavourite = true;
+            this.reorderRepoList();
+            this.refreshRepoListDropdown();
+          }
+          else {
+            this.toastr.error(data.message, data.status);
+          }
+        },
+        error: (error)=>{
+          if(error !== "suppressed")
+            this.toastr.error("An error occured while removing favourite repository", "Error");
+        }
+      });
+    }
+
+  }
+
+  async unfavourite() {
+    let favouriteRepo = this.getRepoFromId(this.selectedRepositoryId);
+    let heading = "Confirmation";
+    let body = `Are you sure you will like to remove ${favouriteRepo.repoName} as the favourite repository ?`;
+
+    if((await this.popUp.showPrompt(heading, body)) === true) {
+      this.repoDbService.removeFavourite(favouriteRepo.repoId!).subscribe({
+        next: (data: {status: string, message: string})=>{
+          if(data.status === "Success"){
+            // this.repoIsFavourite = false;
+            this.currentRepoDetails.isFavourite = false;
+            this.repoList.find((obj)=>obj.repoName === favouriteRepo.repoName)!.isFavourite = false;
+            this.reorderRepoList();
+            this.refreshRepoListDropdown();
+          }
+          else {
+            this.toastr.error(data.message, data.status);
+          }
+        },
+        error: (error)=>{
+          if(error !== "suppressed")
+            this.toastr.error("An error occured while removing favourite repository", "Error");
+        }
+      });
+      
+    };
+  }
+
+  /******************* Screen refresh on height change ********************************/
   // getWindowWidth(){
   //   return window.innerWidth;
   // }
@@ -206,16 +422,5 @@ export class HomeComponentComponent implements OnInit {
   @HostListener('window:resize', ['$event'])
     onResize(event: any) {
   }
-
-  changeTheme(theme: any){
-    //this.themeService.setTheme(theme);
-    if(theme.checked){
-      this.themeService.setTheme("dark");
-    }
-    else{
-      this.themeService.setTheme("light");
-    }
-  }
-
 
 }

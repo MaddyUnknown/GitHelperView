@@ -105,7 +105,7 @@ export class CommitGraphComponent implements OnInit {
   initAfterRepoSelection(){
     //Read this.repositoryDetails and call api to get month list
 
-    this.repoService.getMonthYearListForRepo(this._repositoryDetails.owner, this._repositoryDetails.repoName).subscribe({
+    this.repoService.getMonthYearListForRepo(this._repositoryDetails.repoOwner, this._repositoryDetails.repoName).subscribe({
       next: (data: {month: string, year: string}[])=>{
         this.monthYearList = data;
         this.refreshDropdown();
@@ -148,10 +148,10 @@ export class CommitGraphComponent implements OnInit {
     var periodObj : {month: string, year: string} = this.monthYearList[currentIndex];
     this.spinner.show("graph-spinner");
     //Read barcharlabel and barchartvalues from api for value time interval and use them to set barChartdata
-    this.repoService.getGraphData(this._repositoryDetails.owner, this._repositoryDetails.repoName, periodObj.month, periodObj.year).subscribe({
+    this.repoService.getGraphData(this._repositoryDetails.repoOwner, this._repositoryDetails.repoName, periodObj.month, periodObj.year).subscribe({
       next:(data: {result: {commits: number, day: number}[], owner: string, repoName: string, month: string, year: string})=>{
         let monhtYearPair : {month: string, year: string} = this.monthYearList[this.monthDropDownValue];
-        if(data.owner === this._repositoryDetails.owner && data.repoName === this._repositoryDetails.repoName && data.month === monhtYearPair.month && data.year === monhtYearPair.year){
+        if(data.owner === this._repositoryDetails.repoOwner && data.repoName === this._repositoryDetails.repoName && data.month === monhtYearPair.month && data.year === monhtYearPair.year){
           this.barChartLabels = data.result.map((value)=>value.day.toString());
           this.barChartValues = data.result.map((value)=>value.commits);
           this.refreshChart();
