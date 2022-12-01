@@ -112,7 +112,8 @@ export class HomeComponentComponent implements OnInit {
           if(this.repoList.length !== 0){
             this.reorderRepoList();
             this.selectedRepositoryId = this.repoList[0].repoId;
-            this.initOnRepoSelection(this.selectedRepositoryId);
+            this.repoChangeHandler(this.selectedRepositoryId.toString());
+            // this.initOnRepoSelection(this.selectedRepositoryId);
             this.refreshRepoListDropdown();
           }
         },
